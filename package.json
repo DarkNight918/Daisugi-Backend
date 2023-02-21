@@ -1,0 +1,22 @@
+{
+  "name": "coinworldmarket",
+  "version": "1.0.0",
+  "description": "This is the backend for coinworldmarket",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DarkNight918/CoinWorldMarket-Backend.git"
+  },
+  "author": "CoinDev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DarkNight918/CoinWorldMarket-Backend/issues"
+  },
+  "homepage": "https://github.com/DarkNight918/CoinWorldMarket-Backend#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
