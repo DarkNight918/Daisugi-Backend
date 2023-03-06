@@ -8,7 +8,6 @@ require('dotenv').config()
 const app = express()
 const port = process.env.PORT || 8000
 
-var lastCoinData;
 // Middleware to enable CORS
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
@@ -46,9 +45,10 @@ function callLiveCoinWatchAPI() {
   }
 
   let intervalId;
-  lastCoinData = null;
+  let lastCoinData = null;
 
   const fetchCoinData = async () => {
+    console.log(process.env.LIVECOINWATCH_API_KEY)
     try {
       let response = await axios.post('https://api.livecoinwatch.com/coins/list', data, config);
       var coinData = [];
@@ -96,7 +96,3 @@ function callLiveCoinWatchAPI() {
 function startBackend() {
   callLiveCoinWatchAPI();
 }
-
-app.get('/api', (req, res) => {
-  res.send(process.env.LIVECOINWATCH_API_KEY);
-});
