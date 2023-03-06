@@ -48,7 +48,7 @@ function callLiveCoinWatchAPI() {
   let lastCoinData = null;
 
   const fetchCoinData = async () => {
-    console.log(process.env.LIVECOINWATCH_API_KEY)
+    console.log(process.env.LIVECOINWATCH_API_KEY, "awy23yq23yq23y")
     try {
       let response = await axios.post('https://api.livecoinwatch.com/coins/list', data, config);
       var coinData = [];
