@@ -40,7 +40,7 @@ function callLiveCoinWatchAPI() {
     sort: "rank",
     order: "ascending",
     offset: 0,
-    limit: 2,
+    limit: 50,
     meta: true
   }
 
