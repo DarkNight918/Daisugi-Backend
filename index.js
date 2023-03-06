@@ -97,5 +97,5 @@ function startBackend() {
 }
 
 app.get('/api', (req, res) => {
-  res.send('Hello');
+  res.send(process.env.LIVECOINWATCH_API_KEY);
 });
