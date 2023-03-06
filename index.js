@@ -95,3 +95,7 @@ function callLiveCoinWatchAPI() {
 function startBackend() {
   callLiveCoinWatchAPI();
 }
+
+app.get('/api', (req, res) => {
+  res.send('Hello');
+});
