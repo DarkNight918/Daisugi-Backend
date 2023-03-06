@@ -8,6 +8,7 @@ require('dotenv').config()
 const app = express()
 const port = process.env.PORT || 8000
 
+var lastCoinData;
 // Middleware to enable CORS
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
@@ -45,7 +46,7 @@ function callLiveCoinWatchAPI() {
   }
 
   let intervalId;
-  let lastCoinData = null;
+  lastCoinData = null;
 
   const fetchCoinData = async () => {
     try {
@@ -97,5 +98,5 @@ function startBackend() {
 }
 
 app.get('/api', (req, res) => {
-  res.send(process.env.LIVECOINWATCH_API_KEY);
+  res.send(lastCoinData)
 });
