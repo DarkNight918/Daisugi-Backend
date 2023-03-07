@@ -16,6 +16,11 @@ app.use((req, res, next) => {
 })
 
 app.use(cors())
+app.use(express.static('client'));
+
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/frontend/index.html');
+});
 
 // Start the server and Socket.IO
 const server = app.listen(port, () => {
