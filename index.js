@@ -6,7 +6,7 @@ const cors = require('cors')
 require('dotenv').config()
 
 const app = express()
-const port = process.env.PORT || 8000
+const port = process.env.PORT || 5000
 
 // Middleware to enable CORS
 app.use((req, res, next) => {
@@ -19,7 +19,7 @@ app.use(cors())
 app.use(express.static('client'));
 
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/frontend/index.html');
+  res.sendFile(__dirname + '/client/index.html');
 });
 
 // Start the server and Socket.IO
