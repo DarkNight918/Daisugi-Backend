@@ -1,102 +1,52 @@
-const express = require('express')
-const axios = require('axios')
-const socket = require('socket.io')
-const cors = require('cors')
+const mongoose = require("mongoose");
+const socket = require("socket.io");
+const dotenv = require("dotenv");
 
-require('dotenv').config()
+const { getIntheBlockCoinData, getLiveCoin, updateCoins } = require("./services/coin.service")
 
-const app = express()
-const port = process.env.PORT || 5000
-
-// Middleware to enable CORS
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-})
-
-app.use(cors())
-app.use(express.static('client'));
-
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/client/index.html');
+process.on("uncaughtException", (err) => {
+  console.log("UNCAUGHT EXCEPTION! 💥 Shutting down.....");
+  console.log(err.name, err.message);
+  process.exit(1);
 });
 
-// Start the server and Socket.IO
+dotenv.config();
+const app = require("./app");
+
+const DB = process.env.DATABASE.replace(
+  "<password>",
+  process.env.DATABASE_PASSWORD
+);
+mongoose.connect(DB).then(() => console.log("DB successfully connected"));
+
+const port = process.env.PORT || 5000;
+
+// Start the Server
 const server = app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
-  startBackend();
+
+  // Get started to call third party API for information
+  getAllInfo();
 });
 
 const io = socket(server);
 
-// Define function to call LiveCoinWatch API every 5 seconds and emit response
-function callLiveCoinWatchAPI() {
-
-  const config = {
-    headers: {
-      "content-type": "application/json",
-      "x-api-key": process.env.LIVECOINWATCH_API_KEY,
-    }
-  }
-
-  const data = {
-    currency: "USD",
-    sort: "rank",
-    order: "ascending",
-    offset: 0,
-    limit: 50,
-    meta: true
-  }
-
-  let intervalId;
-  let lastCoinData = null;
-
-  const fetchCoinData = async () => {
-    try {
-      let response = await axios.post('https://api.livecoinwatch.com/coins/list', data, config);
-      var coinData = [];
-
-      response.data.map(item => {
-        // Make coinData information to send to frontend.
-        let tempInfo = {
-          id: item.rank,
-          imgURL: item.png32,
-          name: item.name,
-          price: item.rate,
-          hourlyChanged: item.delta.hour,
-          dailyChanged: item.delta.day,
-          weeklyChanged: item.delta.week,
-          marketCap: item.cap,
-          volume: item.volume
-        }
-
-        coinData.push(tempInfo);
-      })
-
-      // Store the fetched coin data as the last coin data
-      lastCoinData = coinData;
-
-      // Emit information
-      io.emit('totalCoinInfo', coinData);
-      console.log(coinData);
-    } catch (error) {
-      console.log(error);
-      clearInterval(intervalId);
-    }
-  }
-
-  fetchCoinData();
-  intervalId = setInterval(fetchCoinData, 10000);
-
-  // Save the last fetched data and emit it every second
-  setInterval(() => {
-    if (lastCoinData) {
-      io.emit('totalCoinInfo', lastCoinData);
-    }
-  }, 1000);
+function getAllInfo() {
+  getLiveCoin(io);
+  // getIntheBlockCoinData();
+  // updateCoins()
 }
 
-function startBackend() {
-  callLiveCoinWatchAPI();
-}
+process.on("unhandledRejection", (err) => {
+  console.log("UNHANDLED REJECTION! 💥 Shutting down.....");
+  console.log(err.name, err.message);
+  server.close(() => {
+    process.exit(1);
+  });
+});
+
+// app.use(express.static('client'));
+
+// app.get('/', (req, res) => {
+//   res.sendFile(__dirname + '/client/index.html');
+// });
