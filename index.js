@@ -13,6 +13,12 @@ process.on("uncaughtException", (err) => {
 dotenv.config();
 const app = require("./app");
 
+app.use(express.static('client'));
+
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/client/index.html');
+});
+
 const DB = process.env.DATABASE.replace(
   "<password>",
   process.env.DATABASE_PASSWORD
@@ -44,9 +50,3 @@ process.on("unhandledRejection", (err) => {
     process.exit(1);
   });
 });
-
-// app.use(express.static('client'));
-
-// app.get('/', (req, res) => {
-//   res.sendFile(__dirname + '/client/index.html');
-// });
