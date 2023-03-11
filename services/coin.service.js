@@ -65,13 +65,22 @@ const getLiveCoin = (io) => {
 
   // Get Coin information every 1 mintue
   intervalId = setInterval(fetchCoinData, 5000);
+
+  io.on("connection", (socket) => {
+
+    console.log('connected!!!!!!!!!!!!!!');
+    
+    // Save the last fetched data and emit it every second
+    setInterval(() => {
+      if (lastCoinData) {
+        socket.emit("totalCoinInfo", lastCoinData);
+      }
+    }, 1000);
+
+    socket.on("disconnect", () => {
+    });
+  });
   
-  // Save the last fetched data and emit it every second
-  setInterval(() => {
-    if (lastCoinData) {
-      io.emit("totalCoinInfo", lastCoinData);
-    }
-  }, 1000);
 };
 
 // update coin information from intotheblock API.
