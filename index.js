@@ -32,6 +32,9 @@ const server = app.listen(port, () => {
 // const io = socket(server);
 
 const io = require('socket.io')(server, {
+  cors: {
+    origin: '*',
+  }
 });     
 
 function getAllInfo() {
