@@ -64,7 +64,7 @@ const getLiveCoin = (io) => {
   fetchCoinData();
 
   // Get Coin information every 1 mintue
-  intervalId = setInterval(fetchCoinData, 600000);
+  intervalId = setInterval(fetchCoinData, 5000);
 
   // Save the last fetched data and emit it every second
   setInterval(() => {
