@@ -122,7 +122,7 @@ const callIntotheBlockAPI = async (symbols, dateRange) => {
         console.log(`${coin.name} is updated`)
       }
       // Delay for one second before calling the next API
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, 600000));
   }
 }
 

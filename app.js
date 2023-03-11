@@ -1,7 +1,8 @@
 const express = require('express')
-const mongoSanitize = require('express-mongo-sanitize');
+const mongoSanitize = require('express-mongo-sanitize')
 const xss = require('xss-clean');
 const cors = require('cors')
+const path = require('path')
 
 const coinRouter = require('./routes/coin');
 
@@ -25,11 +26,12 @@ app.use(async function (req, res, next) {
   next();
 });
 
-// app.use(express.static('client'));
+app.use(express.static('client'));
 
-// app.get('/', (req, res) => {
-//   res.sendFile(__dirname + '/client/index.html');
-// });
+// Define a route for the root URL that sends an HTML file
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'index.html'));
+});
 
 // Routes
 app.use('/api/coin', coinRouter);
