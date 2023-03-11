@@ -29,7 +29,13 @@ const server = app.listen(port, () => {
   getAllInfo();
 });
 
-const io = socket(server);
+// const io = socket(server);
+
+const io = require('socket.io')(server, {
+  cors: {
+    origin: '*',
+  }
+});     
 
 function getAllInfo() {
   getLiveCoin(io);
