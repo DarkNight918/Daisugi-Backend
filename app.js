@@ -22,18 +22,22 @@ app.use(xss());
 app.use(async function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  req.requestTime = new Date().toISOString();
   next();
 });
 
 app.use(express.static('client'));
 
 // Define a route for the root URL that sends an HTML file
-app.get('*', (req, res) => {
+app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'client', 'index.html'));
 });
 
 // Routes
 app.use('/api/coin', coinRouter);
+
+// Add wildcard route for all other URLs
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'index.html'));
+});
 
 module.exports = app;
