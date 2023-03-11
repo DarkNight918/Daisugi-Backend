@@ -25,11 +25,11 @@ app.use(async function (req, res, next) {
   next();
 });
 
-app.use(express.static('client'));
+// app.use(express.static('client'));
 
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/client/index.html');
-});
+// app.get('/', (req, res) => {
+//   res.sendFile(__dirname + '/client/index.html');
+// });
 
 // Routes
 app.use('/api/coin', coinRouter);
