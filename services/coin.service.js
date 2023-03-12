@@ -4,11 +4,10 @@ const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
 
-// get coin img, name, price, 1 hour 24 hours, 7 days, market cap and volume from LivecoinWatch
+// LiveCoinWatch ------------------ get coin img, name, price, 1 hour 24 hours, 7 days, market cap and volume from LivecoinWatch
 
-const getLiveCoin = (io) => {
+const getLiveCoinWatchData = () => {
   let intervalId;
-  var lastCoinData = null;
 
   const config = {
     headers: {
@@ -17,16 +16,18 @@ const getLiveCoin = (io) => {
     },
   };
 
-  const data = {
-    currency: "USD",
-    sort: "rank",
-    order: "ascending",
-    offset: 0,
-    limit: 50,
-    meta: true,
-  };
 
-  const fetchCoinData = async () => {
+  const fetchCoinData = async (offset) => {
+    
+    const data = {
+      currency: "USD",
+      sort: "rank",
+      order: "ascending",
+      offset: offset,
+      limit: 100,
+      meta: true,
+    };
+    
     try {
       let response = await axios.post(
         "https://api.livecoinwatch.com/coins/list",
@@ -35,25 +36,43 @@ const getLiveCoin = (io) => {
       );
       var coinData = [];
 
-      response.data.map((item) => {
-        // Make coinData information to send to frontend.
-        let tempInfo = {
-          id: item.rank,
-          imgURL: item.png32,
-          name: item.name,
-          price: item.rate,
-          hourlyChanged: item.delta.hour,
-          dailyChanged: item.delta.day,
-          weeklyChanged: item.delta.week,
-          marketCap: item.cap,
-          volume: item.volume,
-        };
+      for (const item of response.data) {
+        // Check if the coin already exists in the database
+        const existingCoin = await Coin.findOne({ name: item.name });
 
-        coinData.push(tempInfo);
-      });
+        if (existingCoin) {
+          // Update the existing coin's information with the fetched data
+          existingCoin.imgURL = item.png32;
+          existingCoin.price = item.rate;
+          existingCoin.hourlyChanged = item.delta.hour;
+          existingCoin.dailyChanged = item.delta.day;
+          existingCoin.weeklyChanged = item.delta.week;
+          existingCoin.marketCap = item.cap;
+          existingCoin.volume = item.volume;
 
-      // Store the fetched coin data as the last coin data
-      lastCoinData = coinData;
+          await existingCoin.save();
+          coinData.push(existingCoin)
+          console.log(`LiveCoinWatch ------ ${existingCoin.name} is Existing and Updated.`)
+        } else {
+          // Create a new coin documnet with the with the fetched data
+          const newCoin = new Coin({
+            rank: item.rank,
+            name: item.name,
+            symbol: item.code,
+            imgURL: item.png32,
+            price: item.rate,
+            hourlyChanged: item.delta.hour,
+            dailyChanged: item.delta.day,
+            weeklyChanged: item.delta.week,
+            marketCap: item.cap,
+            volume: item.volume,
+          })
+
+          await newCoin.save();
+          console.log(`LiveCoinWatch ------ ${newCoin.name} is new and Updated.`)
+        }
+      }
+
 
     } catch (error) {
       console.log(error);
@@ -61,20 +80,27 @@ const getLiveCoin = (io) => {
     }
   };
 
-  fetchCoinData();
+  // Fetch data for each offset range
+  const offsets = Array.from({ length: 20 }, (_, i) => i * 100);
+  const fetchAllData = async () => {
+    await Promise.all(offsets.map(offset => fetchCoinData(offset)));
 
-  // Get Coin information every 1 mintue
-  intervalId = setInterval(fetchCoinData, 5000);
+    // for (const offset of offsets) {
+    //   await fetchCoinData(offset);
+    // }
 
-  // Save the last fetched data and emit it every second
-  setInterval(() => {
-    if (lastCoinData) {
-      io.emit("totalCoinInfo", lastCoinData);
-    }
-  }, 1000);
+    console.log("---------- Getting LiveCoinWatch Information is successfully finished! ----------")
+  };
+
+  fetchAllData();
+
+  // Call fetchAllData every 5 minutes
+  intervalId = setInterval(fetchAllData, 300000);
 };
 
-// update coin information from intotheblock API.
+
+// IntotheBlock ------------------ update coin information from intotheblock API.
+
 
 const callIntotheBlockAPI = async (symbols, dateRange) => {
   
@@ -85,8 +111,6 @@ const callIntotheBlockAPI = async (symbols, dateRange) => {
     }
   }
 
-  const coins = [];
-
   // iterate every symbols
   for (const eachsymbol of symbols) {
 
@@ -94,7 +118,7 @@ const callIntotheBlockAPI = async (symbols, dateRange) => {
 
       const response = await axios.get(url, config);
       // Get the coin info from the response
-      const { name, symbol, price, rank } = response.data;
+      const { name, price, rank } = response.data;
       const inOutOfTheMoneyHistory = response.data.inOutOfTheMoneyHistory || [];
       const breakEvenPriceHistory = response.data.breakEvenPriceHistory || [];
       const volatility = response.data.volatility || [];
@@ -104,8 +128,7 @@ const callIntotheBlockAPI = async (symbols, dateRange) => {
       
       const coin = {
         name,
-        symbol,
-        price,
+        priceList: price,
         rank,
         inOutOfTheMoneyHistory,
         breakEvenPriceHistory,
@@ -116,18 +139,18 @@ const callIntotheBlockAPI = async (symbols, dateRange) => {
       // Check there is same Coin in the database or not
       if (existingCoin) {
         await Coin.findOneAndUpdate({ name }, coin);
-        console.log(`${name} is updated`)
+        console.log(`IntotheBlock ------ ${name} is existing and updated`)
       } else {
         await new Coin(coin).save();
-        console.log(`${coin.name} is updated`)
+        console.log(`IntotheBlock ------ ${coin.name} is new and updated`)
       }
       // Delay for one second before calling the next API
-      await new Promise(resolve => setTimeout(resolve, 600000));
+      await new Promise(resolve => setTimeout(resolve, 3000));
   }
 }
 
 
-const updateCoins = async () => {
+const updateIntotheBlockCoins = async () => {
 
   const dateRange = {
     since: '2023-03-07',
@@ -144,17 +167,18 @@ const updateCoins = async () => {
     // if (symbol === "USDT") {
     //   symbol = "USD";
     // }
+
     return symbol;
   })
 
   await callIntotheBlockAPI(symbols, dateRange);
-  console.log('Coins updated Successfully!');
+  console.log('---------- Getting IntotheBlock Information is successfully finished! ----------');
 };
 
-// Update Coins every 4 times in a day. Time is 1, 7, 13, 19 o'clock in GMT timezone.
+// Update IntotheBlockCoins every 4 times in a day. Time is 1, 7, 13, 19 o'clock in GMT timezone.
 const getIntheBlockCoinData = () => {
-  cron.schedule('0 2,8,14,20 * * *', () => {
-    updateCoins();
+  cron.schedule('0 1,7,13,19 * * *', () => {
+    updateIntotheBlockCoins();
   }, {
     scheduled: true,
     timezone: 'Etc/GMT' // GMT timezone
@@ -162,7 +186,7 @@ const getIntheBlockCoinData = () => {
 }
 
 module.exports = {
-  getLiveCoin,
-  updateCoins,
+  getLiveCoinWatchData,
+  updateIntotheBlockCoins,
   getIntheBlockCoinData,
 }

@@ -13,7 +13,7 @@ exports.getCoinByName = async (req, res) => {
         name: name,
         symbol: '',
         price: [],
-        rank: null,
+        rank: 0,
         inOutOfTheMoneyHistory: [],
         breakEvenPriceHistory: [],
         volatility: [],

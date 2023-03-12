@@ -1,10 +1,6 @@
 {
   "version": 2,
   "name": "conexio-backend",
-  "env": {
-   "SOCKET_URL": "https://conexio.vercel.app/",
-   "SOCKET_PORT": "443"
- },
   "builds": [
      { "src": "index.js", "use": "@vercel/node" }
   ],
