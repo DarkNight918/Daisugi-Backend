@@ -2,7 +2,12 @@ const mongoose = require("mongoose");
 const socket = require("socket.io");
 const dotenv = require("dotenv");
 
-const { getIntheBlockCoinData, getLiveCoinWatchData, updateIntotheBlockCoins } = require("./services/coin.service")
+const {
+  getIntheBlockCoinData,
+  getLiveCoinWatchData,
+  updateIntotheBlockCoins,
+  updateTokenInsightCoins
+} = require("./services/coin.service");
 const publishAllInfo = require("./services/publish.service");
 
 // process.on("uncaughtException", (err) => {
@@ -32,26 +37,31 @@ const server = app.listen(port, () => {
 
 // const io = socket(server);
 
-const io = require('socket.io')(server, {
+const io = require("socket.io")(server, {
   cors: {
-    origin: '*',
-  }
-});     
+    origin: "*",
+  },
+});
 
 // Initialize socket.io server
 io.on("connection", (socket) => {
-  console.log("Socket connected !!!!!!");
+  console.log(`user just connected`, socket.id);
+  // publishAllInfo(socket);
+
+  socket.on("NextCoinInfo", data => {
+    publishAllInfo(socket, data)
+  })
 
   socket.on("disconnect", () => {
-    console.log("disconnected.");
+    console.log("🔥: A user disconnected.");
   });
 });
 
 function getAllInfo() {
-  publishAllInfo(io);
   // getLiveCoinWatchData();
+  // updateTokenInsightCoins();
   // getIntheBlockCoinData();
-  // updateIntotheBlockCoins()
+  // updateIntotheBlockCoins();
 }
 
 process.on("unhandledRejection", (err) => {

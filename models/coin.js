@@ -61,6 +61,50 @@ const schema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  athPrice: {
+    type: Number,
+    default: 0,
+  },
+  athDate: {
+    type: Date,
+    default: '',
+  },
+  atlPrice: {
+    type: Number,
+    default: 0,
+  },
+  atlDate: {
+    type: Date,
+    default: '',
+  },
+  fromATH: {
+    type: Number,
+    default: 0,
+  },
+  fromATL: {
+    type: Number,
+    default: 0,
+  },
+  platforms: {
+    type: String,
+    default: '',
+  },
+  website: {
+    type: String,
+    default: '',
+  },
+  community: {
+    type: Object,
+    default: {},
+  },
+  explorer: {
+    type: String,
+    default: '',
+  },
+  code: {
+    type: String,
+    default: '',
+  }
 });
 
 module.exports = mongoose.model("coin", schema);

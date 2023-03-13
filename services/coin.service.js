@@ -3,6 +3,7 @@ const Coin = require('../models/coin');
 const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
+const { response } = require('../app');
 
 // LiveCoinWatch ------------------ get coin img, name, price, 1 hour 24 hours, 7 days, market cap and volume from LivecoinWatch
 
@@ -43,12 +44,14 @@ const getLiveCoinWatchData = () => {
         if (existingCoin) {
           // Update the existing coin's information with the fetched data
           existingCoin.imgURL = item.png32;
-          existingCoin.price = item.rate;
-          existingCoin.hourlyChanged = item.delta.hour;
-          existingCoin.dailyChanged = item.delta.day;
-          existingCoin.weeklyChanged = item.delta.week;
-          existingCoin.marketCap = item.cap;
-          existingCoin.volume = item.volume;
+          existingCoin.symbol = item.code;
+          existingCoin.rank = item.rank || 0;
+          existingCoin.price = item.rate || 0;
+          existingCoin.hourlyChanged = item.delta.hour || 0;
+          existingCoin.dailyChanged = item.delta.day || 0;
+          existingCoin.weeklyChanged = item.delta.week || 0;
+          existingCoin.marketCap = item.cap || 0;
+          existingCoin.volume = item.volume || 0;
 
           await existingCoin.save();
           coinData.push(existingCoin)
@@ -56,16 +59,16 @@ const getLiveCoinWatchData = () => {
         } else {
           // Create a new coin documnet with the with the fetched data
           const newCoin = new Coin({
-            rank: item.rank,
+            rank: item.rank || 0,
             name: item.name,
             symbol: item.code,
             imgURL: item.png32,
-            price: item.rate,
-            hourlyChanged: item.delta.hour,
-            dailyChanged: item.delta.day,
-            weeklyChanged: item.delta.week,
-            marketCap: item.cap,
-            volume: item.volume,
+            price: item.rate || 0,
+            hourlyChanged: item.delta.hour || 0,
+            dailyChanged: item.delta.day || 0,
+            weeklyChanged: item.delta.week || 0,
+            marketCap: item.cap || 0,
+            volume: item.volume || 0,
           })
 
           await newCoin.save();
@@ -81,7 +84,7 @@ const getLiveCoinWatchData = () => {
   };
 
   // Fetch data for each offset range
-  const offsets = Array.from({ length: 20 }, (_, i) => i * 100);
+  const offsets = Array.from({ length: 60 }, (_, i) => i * 100);
   const fetchAllData = async () => {
     await Promise.all(offsets.map(offset => fetchCoinData(offset)));
 
@@ -95,7 +98,7 @@ const getLiveCoinWatchData = () => {
   fetchAllData();
 
   // Call fetchAllData every 5 minutes
-  intervalId = setInterval(fetchAllData, 300000);
+  intervalId = setInterval(fetchAllData, 3000000);
 };
 
 
@@ -127,25 +130,24 @@ const callIntotheBlockAPI = async (symbols, dateRange) => {
       const existingCoin = await Coin.findOne({ name })
       
       const coin = {
-        name,
-        priceList: price,
-        rank,
-        inOutOfTheMoneyHistory,
-        breakEvenPriceHistory,
-        volatility,
-        largeTxs
+        priceList: price || [],
+        inOutOfTheMoneyHistory: inOutOfTheMoneyHistory || [],
+        breakEvenPriceHistory: breakEvenPriceHistory || [],
+        volatility: volatility || [],
+        largeTxs: largeTxs || []
       }
 
       // Check there is same Coin in the database or not
       if (existingCoin) {
         await Coin.findOneAndUpdate({ name }, coin);
         console.log(`IntotheBlock ------ ${name} is existing and updated`)
-      } else {
-        await new Coin(coin).save();
-        console.log(`IntotheBlock ------ ${coin.name} is new and updated`)
       }
+      // else {
+      //   await new Coin(coin).save();
+      //   console.log(`IntotheBlock ------ ${coin.name} is new and updated`)
+      // }
       // Delay for one second before calling the next API
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
   }
 }
 
@@ -185,8 +187,80 @@ const getIntheBlockCoinData = () => {
   })
 }
 
+ 
+// TokenInsight ----------- Get ATH Price, ATL Price, ATH Date, ATL Date, % from ATH, % to ATH
+
+const updateTokenInsightCoins = async () => {
+
+  const config = {
+    headers: {
+      "TI_API_KEY": process.env.TI_API_KEY,
+    }
+  }
+
+  try {
+    const coins = await Coin.find({}, 'name');
+    for (let i = 0; i < coins.length; i++) {
+      const coinName = coins[i].name;
+      const apiEndPoint = `https://api.tokeninsight.com/api/v1/coins/${coinName}`;
+
+      // await new Promise(resolve => setTimeout(resolve, 100));
+
+      try {
+        const response = await axios.get(apiEndPoint, config)
+        const newTokenInsightData = response.data.data;
+
+        const existingCoin = await Coin.findOne({ name: coinName });
+
+        const coin = {
+          name: coinName,
+          platforms: newTokenInsightData.platforms[0]?.name.toLowerCase(),
+          website: newTokenInsightData.website[0],
+          community: newTokenInsightData.community,
+          explorer: newTokenInsightData.block_explorers[0],
+          code: newTokenInsightData.code[0],
+          athPrice: newTokenInsightData.market_data.price[0]?.ath,
+          athDate: newTokenInsightData.market_data.price[0]?.ath_date ? new Date(newTokenInsightData.market_data.price[0].ath_date) : undefined,
+          atlPrice: newTokenInsightData.market_data.price[0]?.atl,
+          atlDate: newTokenInsightData.market_data.price[0]?.atl_date ? new Date(newTokenInsightData.market_data.price[0].atl_date) : undefined,
+        }
+
+        if (existingCoin) {
+          // Update the corresponding coin in the database with the new data
+          if (newTokenInsightData.market_data.price[0]) {
+            await Coin.findOneAndUpdate({ name: coinName }, coin);
+            console.log(`TokenInsight --------- ${coinName} is existing and updated`);
+          } else {
+            console.log(`TokenInsight --------- ${coinName} has no price data`);
+          }
+        }
+        // Check if there is an existing coin in the database
+        
+        // else {
+        //   // Add the new coin to the database
+        //   await new Coin(coin).save((err, savedCoin) => {
+        //     if (err) {
+        //       console.log(`TokenInsight --------- Error adding ${coinName}: ${err}`)
+        //     } else {
+        //       console.log(`TokenInsight --------- ${coinName} is successfully added.`)
+        //     }
+        //   })
+        // }
+      } catch (err) {
+        console.log(`TokenInsight --------- ${coinName} has No Data.`)
+        continue;
+      }
+    }
+    console.log('---------- Getting TokenInsight Information is successfully finished! ----------')
+  } catch (err) {
+    console.log(`TokenInsight --------- Updating coins error: ${err}`)
+    console.log('---------- Getting TokenInsight Information is failed. ----------')
+  }
+}
+
 module.exports = {
   getLiveCoinWatchData,
   updateIntotheBlockCoins,
   getIntheBlockCoinData,
+  updateTokenInsightCoins,
 }
