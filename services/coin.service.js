@@ -50,6 +50,9 @@ const getLiveCoinWatchData = () => {
           existingCoin.hourlyChanged = item.delta.hour || 0;
           existingCoin.dailyChanged = item.delta.day || 0;
           existingCoin.weeklyChanged = item.delta.week || 0;
+          existingCoin.monthlyChanged = item.delta.month || 0;
+          existingCoin.quarterlyChanged = item.delta.quarter || 0;
+          existingCoin.yearlyChanged = item.delta.year || 0;
           existingCoin.marketCap = item.cap || 0;
           existingCoin.volume = item.volume || 0;
 
@@ -67,6 +70,9 @@ const getLiveCoinWatchData = () => {
             hourlyChanged: item.delta.hour || 0,
             dailyChanged: item.delta.day || 0,
             weeklyChanged: item.delta.week || 0,
+            monthlyChanged: item.delta.month || 0,
+            quarterlyChanged: item.delta.quarter || 0,
+            yearlyChanged: item.delta.year || 0,
             marketCap: item.cap || 0,
             volume: item.volume || 0,
           })
@@ -84,7 +90,7 @@ const getLiveCoinWatchData = () => {
   };
 
   // Fetch data for each offset range
-  const offsets = Array.from({ length: 60 }, (_, i) => i * 100);
+  const offsets = Array.from({ length: 20 }, (_, i) => i * 100);
   const fetchAllData = async () => {
     await Promise.all(offsets.map(offset => fetchCoinData(offset)));
 
@@ -98,7 +104,7 @@ const getLiveCoinWatchData = () => {
   fetchAllData();
 
   // Call fetchAllData every 5 minutes
-  intervalId = setInterval(fetchAllData, 3000000);
+  intervalId = setInterval(fetchAllData, 300000);
 };
 
 

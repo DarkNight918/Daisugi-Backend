@@ -41,6 +41,18 @@ const schema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  monthlyChanged: {
+    type: Number,
+    default: 0,
+  },
+  quarterlyChanged: {
+    type: Number,
+    default: 0,
+  },
+  yearlyChanged: {
+    type: Number,
+    default: 0,
+  },
   inOutOfTheMoneyHistory: [{
     type: Object,
     default: [],

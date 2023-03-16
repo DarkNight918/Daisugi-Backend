@@ -15,7 +15,12 @@ const publishAllInfo = (socket, startNum = 0) => {
           marketCap: 1,
           price: 1,
           rank: 1,
+          hourlyChanged: 1,
           dailyChanged: 1,
+          weeklyChanged: 1,
+          monthlyChanged: 1,
+          quarterlyChanged: 1,
+          yearlyChanged: 1,
           inOutOfTheMoneyHistory: { $slice: -1 },
           breakEvenPriceHistory: { $slice: -1 },
           volatility: { $slice: -1 },
@@ -32,7 +37,7 @@ const publishAllInfo = (socket, startNum = 0) => {
           code: 1,
         });
       
-        socket.emit("TotalCoinInfo", coinData);
+        socket.emit("TotalCoinInfo", {coinData, startNum});
 
     } catch (err) {
       console.log(err)
