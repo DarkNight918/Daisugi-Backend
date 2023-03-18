@@ -8,6 +8,11 @@ const {
   updateIntotheBlockCoins,
   updateTokenInsightCoins
 } = require("./services/coin.service");
+
+const {
+  getNFTMarketPlaceData,
+} = require('./services/nft.service');
+
 const publishAllInfo = require("./services/publish.service");
 
 // process.on("uncaughtException", (err) => {
@@ -62,6 +67,7 @@ function getAllInfo() {
   // updateTokenInsightCoins();
   // getIntheBlockCoinData();
   // updateIntotheBlockCoins();
+  getNFTMarketPlaceData();
 }
 
 process.on("unhandledRejection", (err) => {

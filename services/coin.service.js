@@ -3,7 +3,6 @@ const Coin = require('../models/coin');
 const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
-const { response } = require('../app');
 
 // LiveCoinWatch ------------------ get coin img, name, price, 1 hour 24 hours, 7 days, market cap and volume from LivecoinWatch
 
