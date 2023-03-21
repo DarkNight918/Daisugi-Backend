@@ -91,4 +91,4 @@ const schema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("nftmarketplace", schema);
+module.exports = mongoose.model("nft_marketplace", schema);

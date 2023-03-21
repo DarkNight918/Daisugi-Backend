@@ -1,8 +1,12 @@
 const axios = require('axios');
 const Coin = require('../models/coin');
+const TopCoins = require('../models/coin_toplist');
+const StableCoins = require('../models/coin_stablecoins');
 const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
+
+const { Networks } = require('../data/data');
 
 // LiveCoinWatch ------------------ get coin img, name, price, 1 hour 24 hours, 7 days, market cap and volume from LivecoinWatch
 
@@ -263,9 +267,112 @@ const updateTokenInsightCoins = async () => {
   }
 }
 
+// Defiend.fi ------------------ Get top coins of many chains.
+
+const getTopCoinsData = async () => {
+  const config = {
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": process.env.DEFINEDFI_API_KEY, // Replace with your actual API key
+    },
+  };
+
+  try {
+    // Set the GraphQL endpoint URL
+    const url = "https://api.defined.fi";
+
+    const networkPromises = Networks.map(async (network) => {
+      // Define the GraphQL query string
+      const query = `
+        {
+          listTopTokens(limit: 5, networkFilter: ${network.id}, resolution: "1D") {
+            address
+            decimals
+            exchanges {
+              address
+              id
+              name
+              iconUrl
+              networkId
+              tradeUrl
+            }
+            id
+            liquidity
+            name
+            networkId
+            price
+            priceChange
+            resolution
+            symbol
+            topPairId
+            volume
+          }
+        }
+      `;
+
+      const response = await axios.post(url, { query }, config);
+      return {
+        networkName: network.name,
+        data: response.data.data.listTopTokens,
+      };
+    });
+
+    // Wait for all promises to complete
+    const allResults = await Promise.all(networkPromises);
+
+    // delete all datas before set the inforamtion in the database.
+    await TopCoins.deleteMany();
+
+    // Log the received data
+    for (const result of allResults) {
+      for (const tokenData of result.data) {
+        const token = new TopCoins({
+          ...tokenData,
+          chain: result.networkName,
+        });
+        await token.save();
+        console.log(`Defined.fi --------- ${result.networkName} : ${token.name} is updated.`);
+      }
+    }
+    console.log(`---------- Getting Defiend Fi Information is successfully finished! ----------`);
+  } catch (err) {
+    console.error(`Defined.fi --------- Updating Top Coins error: ${err}`);
+  }
+};
+
+// DefiLlama ------------------ Get stable coins data
+
+const getStableCoinsData = async () => {
+  const apiUrl = 'https://stablecoins.llama.fi/stablecoins?includePrices=true';
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+
+  await StableCoins.deleteMany()
+
+  try {
+    const response = await axios.get(apiUrl, config);
+    const stableCoinData = response.data.peggedAssets;
+
+    stableCoinData.map(data => {
+      const stableCoinData = new StableCoins(data)
+      stableCoinData.save();
+
+      console.log(`DefiLlama --------- Stable Coin Data ${stableCoinData.name} is sucessfully updated.`)
+    })
+    console.log(`---------- Getting DefiLlama Information is successfully finished! ----------`);
+  } catch (err) {
+    console.error(`DefiLlama --------- Updating Stable Coin Data error: ${err}`);
+  }
+};
+
 module.exports = {
   getLiveCoinWatchData,
   updateIntotheBlockCoins,
   getIntheBlockCoinData,
   updateTokenInsightCoins,
+  getTopCoinsData,
+  getStableCoinsData
 }

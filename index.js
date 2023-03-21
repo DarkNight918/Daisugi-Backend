@@ -6,12 +6,21 @@ const {
   getIntheBlockCoinData,
   getLiveCoinWatchData,
   updateIntotheBlockCoins,
-  updateTokenInsightCoins
+  updateTokenInsightCoins,
+  getTopCoinsData,
+  getStableCoinsData
 } = require("./services/coin.service");
 
 const {
   getNFTMarketPlaceData,
+  getNFTTradersData,
 } = require('./services/nft.service');
+
+const {
+  getExchangesData,
+  getTvlProtocolData,
+  getTvlChainData,
+} = require('./services/exchange.service')
 
 const publishAllInfo = require("./services/publish.service");
 
@@ -67,7 +76,13 @@ function getAllInfo() {
   // updateTokenInsightCoins();
   // getIntheBlockCoinData();
   // updateIntotheBlockCoins();
-  getNFTMarketPlaceData();
+  // getNFTMarketPlaceData();
+  // getNFTTradersData();
+  // getTopCoinsData();
+  // getExchangesData();
+  // getTvlProtocolData();
+  // getTvlChainData();
+  getStableCoinsData();
 }
 
 process.on("unhandledRejection", (err) => {
