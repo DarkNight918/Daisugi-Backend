@@ -1,5 +1,5 @@
 const axios = require("axios");
-const NFTMarketPlace = require("../models/nft_marketplace");
+const NFTMarketPlace = require("../models/nft_marketplaces");
 const NFTTraders = require("../models/nft_traders");
 const cron = require("node-cron");
 

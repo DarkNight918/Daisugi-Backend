@@ -17,9 +17,12 @@ const {
 } = require('./services/nft.service');
 
 const {
-  getExchangesData,
+  getDEXData,
+  getCEXData,
   getTvlProtocolData,
   getTvlChainData,
+  getPoolsData,
+  getBridgeData
 } = require('./services/exchange.service')
 
 const publishAllInfo = require("./services/publish.service");
@@ -79,16 +82,19 @@ function getAllInfo() {
   // getNFTMarketPlaceData();
   // getNFTTradersData();
   // getTopCoinsData();
-  // getExchangesData();
+  // getDEXData();
+  getCEXData();
   // getTvlProtocolData();
   // getTvlChainData();
-  getStableCoinsData();
+  // getStableCoinsData();
+  // getPoolsData();
+  // getBridgeData()
 }
 
-process.on("unhandledRejection", (err) => {
-  console.log("UNHANDLED REJECTION! 💥 Shutting down.....");
-  console.log(err.name, err.message);
-  server.close(() => {
-    process.exit(1);
-  });
-});
+// process.on("unhandledRejection", (err) => {
+//   console.log("UNHANDLED REJECTION! 💥 Shutting down.....");
+//   console.log(err.name, err.message);
+//   server.close(() => {
+//     process.exit(1);
+//   });
+// });

@@ -27,4 +27,4 @@ const schema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("tvl_chain", schema);
+module.exports = mongoose.model("tvl_chains", schema);

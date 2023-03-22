@@ -1,12 +1,12 @@
-const axios = require('axios');
-const Coin = require('../models/coin');
-const TopCoins = require('../models/coin_toplist');
-const StableCoins = require('../models/coin_stablecoins');
-const fs = require('fs');
-const path = require('path');
-const cron = require('node-cron');
+const axios = require("axios");
+const Coin = require("../models/coins");
+const TopCoins = require("../models/coin_toplists");
+const StableCoins = require("../models/coin_stablecoins");
+const fs = require("fs");
+const path = require("path");
+const cron = require("node-cron");
 
-const { Networks } = require('../data/data');
+const { Networks } = require("../data/data");
 
 // LiveCoinWatch ------------------ get coin img, name, price, 1 hour 24 hours, 7 days, market cap and volume from LivecoinWatch
 
@@ -20,9 +20,7 @@ const getLiveCoinWatchData = () => {
     },
   };
 
-
   const fetchCoinData = async (offset) => {
-    
     const data = {
       currency: "USD",
       sort: "rank",
@@ -31,7 +29,7 @@ const getLiveCoinWatchData = () => {
       limit: 100,
       meta: true,
     };
-    
+
     try {
       let response = await axios.post(
         "https://api.livecoinwatch.com/coins/list",
@@ -60,8 +58,10 @@ const getLiveCoinWatchData = () => {
           existingCoin.volume = item.volume || 0;
 
           await existingCoin.save();
-          coinData.push(existingCoin)
-          console.log(`LiveCoinWatch ------ ${existingCoin.name} is Existing and Updated.`)
+          coinData.push(existingCoin);
+          console.log(
+            `LiveCoinWatch ------ ${existingCoin.name} is Existing and Updated.`
+          );
         } else {
           // Create a new coin documnet with the with the fetched data
           const newCoin = new Coin({
@@ -78,14 +78,14 @@ const getLiveCoinWatchData = () => {
             yearlyChanged: item.delta.year || 0,
             marketCap: item.cap || 0,
             volume: item.volume || 0,
-          })
+          });
 
           await newCoin.save();
-          console.log(`LiveCoinWatch ------ ${newCoin.name} is new and Updated.`)
+          console.log(
+            `LiveCoinWatch ------ ${newCoin.name} is new and Updated.`
+          );
         }
       }
-
-
     } catch (error) {
       console.log(error);
       clearInterval(intervalId);
@@ -95,13 +95,15 @@ const getLiveCoinWatchData = () => {
   // Fetch data for each offset range
   const offsets = Array.from({ length: 20 }, (_, i) => i * 100);
   const fetchAllData = async () => {
-    await Promise.all(offsets.map(offset => fetchCoinData(offset)));
+    await Promise.all(offsets.map((offset) => fetchCoinData(offset)));
 
     // for (const offset of offsets) {
     //   await fetchCoinData(offset);
     // }
 
-    console.log("---------- Getting LiveCoinWatch Information is successfully finished! ----------")
+    console.log(
+      "---------- Getting LiveCoinWatch Information is successfully finished! ----------"
+    );
   };
 
   fetchAllData();
@@ -110,68 +112,66 @@ const getLiveCoinWatchData = () => {
   intervalId = setInterval(fetchAllData, 300000);
 };
 
-
 // IntotheBlock ------------------ update coin information from intotheblock API.
 
-
 const callIntotheBlockAPI = async (symbols, dateRange) => {
-  
   // set the header
   const config = {
     headers: {
       "X-Api-Key": process.env.INTOTHEBLOCK_API_KEY,
-    }
-  }
+    },
+  };
 
   // iterate every symbols
   for (const eachsymbol of symbols) {
+    const url = `https://api.intotheblock.com/${eachsymbol.toLowerCase()}/financial?since=${
+      dateRange.since
+    }&until=${dateRange.until}`;
 
-      const url = `https://api.intotheblock.com/${eachsymbol.toLowerCase()}/financial?since=${dateRange.since}&until=${dateRange.until}`;
+    const response = await axios.get(url, config);
+    // Get the coin info from the response
+    const { name, price, rank } = response.data;
+    const inOutOfTheMoneyHistory = response.data.inOutOfTheMoneyHistory || [];
+    const breakEvenPriceHistory = response.data.breakEvenPriceHistory || [];
+    const volatility = response.data.volatility || [];
+    const largeTxs = response.data.largeTxs || [];
 
-      const response = await axios.get(url, config);
-      // Get the coin info from the response
-      const { name, price, rank } = response.data;
-      const inOutOfTheMoneyHistory = response.data.inOutOfTheMoneyHistory || [];
-      const breakEvenPriceHistory = response.data.breakEvenPriceHistory || [];
-      const volatility = response.data.volatility || [];
-      const largeTxs = response.data.largeTxs || [];
+    const existingCoin = await Coin.findOne({ name });
 
-      const existingCoin = await Coin.findOne({ name })
-      
-      const coin = {
-        priceList: price || [],
-        inOutOfTheMoneyHistory: inOutOfTheMoneyHistory || [],
-        breakEvenPriceHistory: breakEvenPriceHistory || [],
-        volatility: volatility || [],
-        largeTxs: largeTxs || []
-      }
+    const coin = {
+      priceList: price || [],
+      inOutOfTheMoneyHistory: inOutOfTheMoneyHistory || [],
+      breakEvenPriceHistory: breakEvenPriceHistory || [],
+      volatility: volatility || [],
+      largeTxs: largeTxs || [],
+    };
 
-      // Check there is same Coin in the database or not
-      if (existingCoin) {
-        await Coin.findOneAndUpdate({ name }, coin);
-        console.log(`IntotheBlock ------ ${name} is existing and updated`)
-      }
-      // else {
-      //   await new Coin(coin).save();
-      //   console.log(`IntotheBlock ------ ${coin.name} is new and updated`)
-      // }
-      // Delay for one second before calling the next API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+    // Check there is same Coin in the database or not
+    if (existingCoin) {
+      await Coin.findOneAndUpdate({ name }, coin);
+      console.log(`IntotheBlock ------ ${name} is existing and updated`);
+    }
+    // else {
+    //   await new Coin(coin).save();
+    //   console.log(`IntotheBlock ------ ${coin.name} is new and updated`)
+    // }
+    // Delay for one second before calling the next API
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
-}
-
+};
 
 const updateIntotheBlockCoins = async () => {
-
   const dateRange = {
-    since: '2023-03-07',
-    until: '2023-03-08',
-  }
+    since: "2023-03-07",
+    until: "2023-03-08",
+  };
 
-  const coinData = fs.readFileSync(path.join(__dirname, '../data/intotheblock.json'));
+  const coinData = fs.readFileSync(
+    path.join(__dirname, "../data/intotheblock.json")
+  );
   const coins = JSON.parse(coinData);
-  
-  const symbols = coins.map(coin => {
+
+  const symbols = coins.map((coin) => {
     let symbol = coin.symbol;
 
     // Modify symbol if needed
@@ -180,35 +180,39 @@ const updateIntotheBlockCoins = async () => {
     // }
 
     return symbol;
-  })
+  });
 
   await callIntotheBlockAPI(symbols, dateRange);
-  console.log('---------- Getting IntotheBlock Information is successfully finished! ----------');
+  console.log(
+    "---------- Getting IntotheBlock Information is successfully finished! ----------"
+  );
 };
 
 // Update IntotheBlockCoins every 4 times in a day. Time is 1, 7, 13, 19 o'clock in GMT timezone.
 const getIntheBlockCoinData = () => {
-  cron.schedule('0 1,7,13,19 * * *', () => {
-    updateIntotheBlockCoins();
-  }, {
-    scheduled: true,
-    timezone: 'Etc/GMT' // GMT timezone
-  })
-}
+  cron.schedule(
+    "0 1,7,13,19 * * *",
+    () => {
+      updateIntotheBlockCoins();
+    },
+    {
+      scheduled: true,
+      timezone: "Etc/GMT", // GMT timezone
+    }
+  );
+};
 
- 
 // TokenInsight ----------- Get ATH Price, ATL Price, ATH Date, ATL Date, % from ATH, % to ATH
 
 const updateTokenInsightCoins = async () => {
-
   const config = {
     headers: {
-      "TI_API_KEY": process.env.TI_API_KEY,
-    }
-  }
+      TI_API_KEY: process.env.TI_API_KEY,
+    },
+  };
 
   try {
-    const coins = await Coin.find({}, 'name');
+    const coins = await Coin.find({}, "name");
     for (let i = 0; i < coins.length; i++) {
       const coinName = coins[i].name;
       const apiEndPoint = `https://api.tokeninsight.com/api/v1/coins/${coinName}`;
@@ -216,7 +220,7 @@ const updateTokenInsightCoins = async () => {
       // await new Promise(resolve => setTimeout(resolve, 100));
 
       try {
-        const response = await axios.get(apiEndPoint, config)
+        const response = await axios.get(apiEndPoint, config);
         const newTokenInsightData = response.data.data;
 
         const existingCoin = await Coin.findOne({ name: coinName });
@@ -229,22 +233,28 @@ const updateTokenInsightCoins = async () => {
           explorer: newTokenInsightData.block_explorers[0],
           code: newTokenInsightData.code[0],
           athPrice: newTokenInsightData.market_data.price[0]?.ath,
-          athDate: newTokenInsightData.market_data.price[0]?.ath_date ? new Date(newTokenInsightData.market_data.price[0].ath_date) : undefined,
+          athDate: newTokenInsightData.market_data.price[0]?.ath_date
+            ? new Date(newTokenInsightData.market_data.price[0].ath_date)
+            : undefined,
           atlPrice: newTokenInsightData.market_data.price[0]?.atl,
-          atlDate: newTokenInsightData.market_data.price[0]?.atl_date ? new Date(newTokenInsightData.market_data.price[0].atl_date) : undefined,
-        }
+          atlDate: newTokenInsightData.market_data.price[0]?.atl_date
+            ? new Date(newTokenInsightData.market_data.price[0].atl_date)
+            : undefined,
+        };
 
         if (existingCoin) {
           // Update the corresponding coin in the database with the new data
           if (newTokenInsightData.market_data.price[0]) {
             await Coin.findOneAndUpdate({ name: coinName }, coin);
-            console.log(`TokenInsight --------- ${coinName} is existing and updated`);
+            console.log(
+              `TokenInsight --------- ${coinName} is existing and updated`
+            );
           } else {
             console.log(`TokenInsight --------- ${coinName} has no price data`);
           }
         }
         // Check if there is an existing coin in the database
-        
+
         // else {
         //   // Add the new coin to the database
         //   await new Coin(coin).save((err, savedCoin) => {
@@ -256,16 +266,20 @@ const updateTokenInsightCoins = async () => {
         //   })
         // }
       } catch (err) {
-        console.log(`TokenInsight --------- ${coinName} has No Data.`)
+        console.log(`TokenInsight --------- ${coinName} has No Data.`);
         continue;
       }
     }
-    console.log('---------- Getting TokenInsight Information is successfully finished! ----------')
+    console.log(
+      "---------- Getting TokenInsight Information is successfully finished! ----------"
+    );
   } catch (err) {
-    console.log(`TokenInsight --------- Updating coins error: ${err}`)
-    console.log('---------- Getting TokenInsight Information is failed. ----------')
+    console.log(`TokenInsight --------- Updating coins error: ${err}`);
+    console.log(
+      "---------- Getting TokenInsight Information is failed. ----------"
+    );
   }
-}
+};
 
 // Defiend.fi ------------------ Get top coins of many chains.
 
@@ -331,10 +345,14 @@ const getTopCoinsData = async () => {
           chain: result.networkName,
         });
         await token.save();
-        console.log(`Defined.fi --------- ${result.networkName} : ${token.name} is updated.`);
+        console.log(
+          `Defined.fi --------- ${result.networkName} : ${token.name} is updated.`
+        );
       }
     }
-    console.log(`---------- Getting Defiend Fi Information is successfully finished! ----------`);
+    console.log(
+      `---------- Getting Defiend Fi Information is successfully finished! ----------`
+    );
   } catch (err) {
     console.error(`Defined.fi --------- Updating Top Coins error: ${err}`);
   }
@@ -343,28 +361,34 @@ const getTopCoinsData = async () => {
 // DefiLlama ------------------ Get stable coins data
 
 const getStableCoinsData = async () => {
-  const apiUrl = 'https://stablecoins.llama.fi/stablecoins?includePrices=true';
+  const apiUrl = "https://stablecoins.llama.fi/stablecoins?includePrices=true";
   const config = {
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
   };
 
-  await StableCoins.deleteMany()
+  await StableCoins.deleteMany();
 
   try {
     const response = await axios.get(apiUrl, config);
     const stableCoinData = response.data.peggedAssets;
 
-    stableCoinData.map(data => {
-      const stableCoinData = new StableCoins(data)
+    stableCoinData.map((data) => {
+      const stableCoinData = new StableCoins(data);
       stableCoinData.save();
 
-      console.log(`DefiLlama --------- Stable Coin Data ${stableCoinData.name} is sucessfully updated.`)
-    })
-    console.log(`---------- Getting DefiLlama Information is successfully finished! ----------`);
+      console.log(
+        `DefiLlama --------- Stable Coin Data ${stableCoinData.name} is sucessfully updated.`
+      );
+    });
+    console.log(
+      `---------- Getting DefiLlama Information is successfully finished! ----------`
+    );
   } catch (err) {
-    console.error(`DefiLlama --------- Updating Stable Coin Data error: ${err}`);
+    console.error(
+      `DefiLlama --------- Updating Stable Coin Data error: ${err}`
+    );
   }
 };
 
@@ -374,5 +398,5 @@ module.exports = {
   getIntheBlockCoinData,
   updateTokenInsightCoins,
   getTopCoinsData,
-  getStableCoinsData
-}
+  getStableCoinsData,
+};

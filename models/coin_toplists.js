@@ -86,4 +86,4 @@ const schema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("coin_toplist", schema);
+module.exports = mongoose.model("coin_toplists", schema);

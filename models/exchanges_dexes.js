@@ -105,6 +105,38 @@ const schema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  parentProtocol: {
+    type: String,
+    default: '',
+  },
+  dailyRevenue: {
+    type: Number,
+    default: 0,
+  },
+  dailyUserFees: {
+    type: Number,
+    default: 0,
+  },
+  dailyHoldersRevenue: {
+    type: Number,
+    default: 0,
+  },
+  dailyCreatorRevenue: {
+    type: Number,
+    default: 0,
+  },
+  dailySupplySideRevenue: {
+    type: Number,
+    default: 0,
+  },
+  dailyProtocolRevenue: {
+    type: Number,
+    default: 0,
+  },
+  dailyFees: {
+    type: Number,
+    default: 0,
+  },
 });
 
-module.exports = mongoose.model("exchanges", schema);
+module.exports = mongoose.model("exchanges_dexes", schema);

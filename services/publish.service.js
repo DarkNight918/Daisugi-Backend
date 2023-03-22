@@ -1,12 +1,10 @@
-const Coin = require("../models/coin")
+const Coin = require("../models/coins");
 
 const publishAllInfo = (socket, startNum = 0) => {
-
   const publishInfo = async () => {
     try {
-
       const coinData = await Coin.find({ rank: { $gt: startNum } })
-        .sort({ rank: 1})
+        .sort({ rank: 1 })
         .limit(50)
         .select({
           name: 1,
@@ -36,18 +34,17 @@ const publishAllInfo = (socket, startNum = 0) => {
           explorer: 1,
           code: 1,
         });
-      
-        socket.emit("TotalCoinInfo", {coinData, startNum});
 
+      socket.emit("TotalCoinInfo", { coinData, startNum });
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
-  }
+  };
 
   publishInfo();
-  
+
   // Call the publish info every second
   // setInterval(publishInfo, 1000);
-}
+};
 
 module.exports = publishAllInfo;
