@@ -1,6 +1,7 @@
 const axios = require("axios");
 const NFTMarketPlace = require("../models/nft_marketplaces");
 const NFTTraders = require("../models/nft_traders");
+const NFTData = require("../models/nfts");
 const cron = require("node-cron");
 
 const chainAPI = [
@@ -264,7 +265,79 @@ const getNFTTradersData = async () => {
   }
 };
 
+// NFT Scan ------------------ Get infos about Top NFTs.
+
+const getNFTDdata = async () => {
+  
+  const config = {
+    headers: {
+      "content-type": "application/json",
+      "x-api-key": process.env.NFTSCAN_API_KEY,
+    },
+  };
+
+  const dataAPI = [
+    '/api/v2/statistics/ranking/mint?time=1d',
+    '/api/v2/statistics/ranking/trade?time=1d&sort_field=volume&sort_direction=desc&show_7d_trends=true',
+    '/api/v2/statistics/ranking/gas?show_24h_trends=true'
+  ]
+
+  try {
+
+    await NFTData.deleteMany()
+
+    for (chain of chainAPI) {
+      for (i = 0; i < dataAPI.length; i++) {
+        // Get result for each API
+        let apiURL = chain.url + dataAPI[i];
+        try {
+          let response = await axios.get(apiURL, config)
+
+          // Add chainName to each item
+          const updatedData = response.data.data.map(item => ({
+            ...item,
+            chainName: chain.chainName,
+          }));
+          
+          const updatePromises = updatedData.map(item =>
+
+            NFTData.updateOne(
+              { contract_address: item.contract_address },
+              { $set: item },
+              { upsert: true }
+            )
+          );
+
+          await Promise.all(updatePromises)
+
+          // for (const item of response.data.data) {
+          //   await NFTData.updateOne(
+          //     { contract_address: item.contract_address },
+          //     { $set: item },
+          //     { upsert: true }
+          //   );
+          updatedData.forEach(item => 
+            console.log(`${item.contract_address} of ${chain.chainName} NFT Information is successfully Updated`)
+          )
+          // }
+        } catch (err) {
+          console.log(
+            `NFTScan --------- Updating Each NFT Data error: ${err}`
+          );
+        }
+      }
+    }
+    console.log(`NFTScan --------- Updating NFT Data Successfully finished.`);
+  } catch (err) {
+    console.log(
+      `NFTScan --------- Updating NFT Datas error: ${err}`
+    );
+  }
+
+}
+
 module.exports = {
   getNFTMarketPlaceData,
   getNFTTradersData,
+  getNFTDdata,
 };

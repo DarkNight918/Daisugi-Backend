@@ -14,6 +14,7 @@ const {
 const {
   getNFTMarketPlaceData,
   getNFTTradersData,
+  getNFTDdata,
 } = require('./services/nft.service');
 
 const {
@@ -98,7 +99,8 @@ function getAllInfo() {
   // getPoolsData();
   // getBridgeData()
   // getChainData()
-  getRichAddressData()
+  // getRichAddressData()
+  getNFTDdata()
 }
 
 // process.on("unhandledRejection", (err) => {

@@ -98,7 +98,7 @@ const schema = new mongoose.Schema({
     default: {},
   },
   code: [{
-    type: String,
+    type: String, 
     default: '',
   }],
   investors: [{
