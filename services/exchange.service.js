@@ -1,5 +1,5 @@
 const axios = require('axios');
-const ExchangeData = require('../models/exchanges_dexes')
+const DEXData = require('../models/exchanges_dexes')
 const CEXData = require('../models/exchanges_cexes')
 const TvlProtocolData = require('../models/tvl_protocols')
 const TvlChainData = require('../models/tvl_chains')
@@ -21,22 +21,27 @@ const getDEXData = async () => {
   try {
     const response = await axios.get(apiDexUrl, config);
     const exchangeData = response.data.protocols;
-    // const totalExchangeInfo = response.data;
+    const totalExchangeInfo = response.data;
 
-    await ExchangeData.deleteMany()
+    // await DEXData.deleteMany()
 
     // Save the total exchange info
 
-    // const totalExchangeData = new ExchangeData({
+    // const totalExchangeData = new DEXData({
     //   ...totalExchangeInfo,
     //   name: 'TotalExchangeInfo',
     // });
     // await totalExchangeData.save();
     // console.log('DefiLlama --------- TotalExchangeInfo is successfully updated.');
 
-    exchangeData.map(exchange => {
-      const exchangeData = new ExchangeData(exchange)
-      exchangeData.save();
+    exchangeData.map(async (exchange) => {
+
+      await DEXData.updateOne(
+        { name: exchange.name },
+        { $set: exchange },
+        { upsert: true }
+      );
+
       console.log(`DefiLlama --------- DEX Data ${exchange.name} sucessfully updated.`)
     })
 
@@ -45,7 +50,7 @@ const getDEXData = async () => {
     const feeData = responseFee.data.protocols;
 
     const updateDexPromises = feeData.map(async (data) => {
-      const existingDex = await ExchangeData.findOne({ name: data.name });
+      const existingDex = await DEXData.findOne({ name: data.name });
       if (existingDex) {
         existingDex.parentProtocol = data.parentProtocol || '';
         existingDex.dailyRevenue = data.dailyRevenue || 0;

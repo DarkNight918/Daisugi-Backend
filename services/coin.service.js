@@ -1,10 +1,14 @@
 const axios = require("axios");
-const Coin = require("../models/coins");
-const TopCoins = require("../models/coin_toplists");
-const StableCoins = require("../models/coin_stablecoins");
 const fs = require("fs");
 const path = require("path");
 const cron = require("node-cron");
+
+const Coin = require("../models/coins");
+const TopCoins = require("../models/coin_toplists");
+const StableCoins = require("../models/coin_stablecoins");
+
+const Bottleneck = require("bottleneck");
+const limiter = new Bottleneck({ maxConcurrent: 5, minTime: 100 });
 
 const { Networks } = require("../data/data");
 
@@ -212,64 +216,62 @@ const updateTokenInsightCoins = async () => {
   };
 
   try {
-    const coins = await Coin.find({}, "name");
-    for (let i = 0; i < coins.length; i++) {
-      const coinName = coins[i].name;
-      const apiEndPoint = `https://api.tokeninsight.com/api/v1/coins/${coinName}`;
+    const coins = await Coin.find({}, "name rank").sort("rank");
+    const promises = coins.map(async (coin) => {
+      const coinName = coin.name;
+      const modifiedCoinName = coinName.replace(/ /g, "-");
+      const apiEndPoint = `https://api.tokeninsight.com/api/v1/coins/${modifiedCoinName}`;
 
       // await new Promise(resolve => setTimeout(resolve, 100));
 
       try {
-        const response = await axios.get(apiEndPoint, config);
-        const newTokenInsightData = response.data.data;
+        await limiter.schedule(async () => {
+          const response = await axios.get(apiEndPoint, config);
+          const newTokenInsightData = response.data.data;
+          // console.log(newTokenInsightData)
+          const existingCoin = await Coin.findOne({ name: coinName });
 
-        const existingCoin = await Coin.findOne({ name: coinName });
+          const coin = {
+            name: coinName,
+            rating: newTokenInsightData.rating,
+            block_explorers: newTokenInsightData.block_explorers,
+            platforms: newTokenInsightData.platforms,
+            website: newTokenInsightData.website,
+            community: newTokenInsightData.community,
+            resource: newTokenInsightData.resource,
+            code: newTokenInsightData.code,
+            investors: newTokenInsightData.investors,
+            localization: newTokenInsightData.localization,
+            market_data: newTokenInsightData.market_data,
+            tickers: newTokenInsightData.tickers,
+          };
 
-        const coin = {
-          name: coinName,
-          platforms: newTokenInsightData.platforms[0]?.name.toLowerCase(),
-          website: newTokenInsightData.website[0],
-          community: newTokenInsightData.community,
-          explorer: newTokenInsightData.block_explorers[0],
-          code: newTokenInsightData.code[0],
-          athPrice: newTokenInsightData.market_data.price[0]?.ath,
-          athDate: newTokenInsightData.market_data.price[0]?.ath_date
-            ? new Date(newTokenInsightData.market_data.price[0].ath_date)
-            : undefined,
-          atlPrice: newTokenInsightData.market_data.price[0]?.atl,
-          atlDate: newTokenInsightData.market_data.price[0]?.atl_date
-            ? new Date(newTokenInsightData.market_data.price[0].atl_date)
-            : undefined,
-        };
-
-        if (existingCoin) {
-          // Update the corresponding coin in the database with the new data
-          if (newTokenInsightData.market_data.price[0]) {
+          if (existingCoin) {
+            // Update the corresponding coin in the database with the new data
             await Coin.findOneAndUpdate({ name: coinName }, coin);
             console.log(
               `TokenInsight --------- ${coinName} is existing and updated`
             );
-          } else {
-            console.log(`TokenInsight --------- ${coinName} has no price data`);
           }
-        }
-        // Check if there is an existing coin in the database
+          // Check if there is an existing coin in the database
 
-        // else {
-        //   // Add the new coin to the database
-        //   await new Coin(coin).save((err, savedCoin) => {
-        //     if (err) {
-        //       console.log(`TokenInsight --------- Error adding ${coinName}: ${err}`)
-        //     } else {
-        //       console.log(`TokenInsight --------- ${coinName} is successfully added.`)
-        //     }
-        //   })
-        // }
+          // else {
+          //   // Add the new coin to the database
+          //   await new Coin(coin).save((err, savedCoin) => {
+          //     if (err) {
+          //       console.log(`TokenInsight --------- Error adding ${coinName}: ${err}`)
+          //     } else {
+          //       console.log(`TokenInsight --------- ${coinName} is successfully added.`) 
+          //     }
+          //   })
+          // }
+        });
       } catch (err) {
         console.log(`TokenInsight --------- ${coinName} has No Data.`);
-        continue;
       }
-    }
+    });
+
+    await Promise.all(promises);
     console.log(
       "---------- Getting TokenInsight Information is successfully finished! ----------"
     );
@@ -368,15 +370,21 @@ const getStableCoinsData = async () => {
     },
   };
 
-  await StableCoins.deleteMany();
+  // await StableCoins.deleteMany();
 
   try {
     const response = await axios.get(apiUrl, config);
     const stableCoinData = response.data.peggedAssets;
 
-    stableCoinData.map((data) => {
-      const stableCoinData = new StableCoins(data);
-      stableCoinData.save();
+    stableCoinData.map(async (data) => {
+      const existingCoin = await StableCoins.findOne({ name: data.name })
+
+      if (existingCoin) {
+        await StableCoins.updateOne({ name: data.name }, { $set: data });
+      } else {
+        const stableCoinData = new StableCoins(data);
+        stableCoinData.save();
+      }
 
       console.log(
         `DefiLlama --------- Stable Coin Data ${stableCoinData.name} is sucessfully updated.`

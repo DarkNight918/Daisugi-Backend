@@ -25,6 +25,14 @@ const {
   getBridgeData
 } = require('./services/exchange.service')
 
+const {
+  getChainData,
+} = require('./services/chains.service')
+
+const {
+  getRichAddressData,
+} = require('./services/address.service')
+
 const publishAllInfo = require("./services/publish.service");
 
 // process.on("uncaughtException", (err) => {
@@ -83,12 +91,14 @@ function getAllInfo() {
   // getNFTTradersData();
   // getTopCoinsData();
   // getDEXData();
-  getCEXData();
+  // getCEXData();
   // getTvlProtocolData();
   // getTvlChainData();
   // getStableCoinsData();
   // getPoolsData();
   // getBridgeData()
+  // getChainData()
+  getRichAddressData()
 }
 
 // process.on("unhandledRejection", (err) => {
