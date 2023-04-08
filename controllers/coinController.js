@@ -1,4 +1,5 @@
 const Coin = require("../models/coins");
+const TopCoins = require("../models/coin_toplists");
 
 exports.getCoinByName = async (req, res) => {
   const name = req.params.name;
@@ -26,6 +27,18 @@ exports.getCoinByName = async (req, res) => {
     }
 
     return res.status(200).json({ coins });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+exports.getTopCoins = async (req, res) => {
+  try {
+    // Find all documents in the TopCoins collection
+    const topCoins = await TopCoins.find({});
+
+    return res.status(200).json({ topCoins });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ message: "Internal Server Error" });

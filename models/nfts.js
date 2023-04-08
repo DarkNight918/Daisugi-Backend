@@ -1,134 +1,176 @@
 const mongoose = require('mongoose')
 
 const schema = new mongoose.Schema({
-  contract_address: {
+  collection_id: {
     type: String,
     required: true,
   },
   chainName: {
     type: String,
-    default: '',
+    required: true,
   },
-  contract_name: {
+  name: {
     type: String,
     default: '',
   },
-  mint_total: {
-    type: Number,
-    default: 0,
-  },
-  logo_url: {
+  description: {
     type: String,
     default: '',
   },
-  mint_cost: {
+  image_url: {
+    type: String,
+    default: '',
+  },
+  banner_image_url: {
+    type: String,
+    default: '',
+  },
+  external_url: {
+    type: String,
+    default: '',
+  },
+  twitter_username: {
+    type: String,
+    default: '',
+  },
+  discord_url: {
+    type: String,
+    default: '',
+  },
+  marketplace_pages: [{
+    type: Object,
+    default: {},
+  }],
+  metaplex_mint: {
+    type: String,
+    default: '',
+  },
+  metaplex_first_verified_creator: {
+    type: String,
+    default: '',
+  },
+  floor_prices: [{
+    type: Object,
+    default: {},
+  }],
+  distinct_owner_count: {
     type: Number,
     default: 0,
   },
-  sale_total: {
+  distinct_nft_count: {
     type: Number,
     default: 0,
   },
+  total_quantity: {
+    type: Number,
+    default: 0,
+  },
+  top_contracts: [{
+    type: String,
+    default: '',
+  }],
   floor_price: {
     type: Number,
     default: 0,
   },
-  lowest_price: {
+  volume_today: {
     type: Number,
     default: 0,
   },
-  average_price: {
+  volume_ystd: {
     type: Number,
     default: 0,
   },
-  highest_price: {
+  one_day_change: {
     type: Number,
     default: 0,
   },
-  volume: {
+  volume_week: {
     type: Number,
     default: 0,
   },
-  sales: {
+  volume_last_week: {
     type: Number,
     default: 0,
   },
-  sales_change: {
+  seven_days_change: {
+    type: Number,
+    default: 0,
+  },
+  policies: [{
     type: String,
     default: '',
-  },
-  mint_price_total: {
-    type: Number,
-    default: 0,
-  },
-  mint_gas_fee: {
-    type: Number,
-    default: 0,
-  },
-  exchange_volume_change_24h: {
-    type: String,
-    default: '',
-  },
-  exchange_volume_change_7d: {
-    type: String,
-    default: '',
-  },
-  items_total: {
-    type: Number,
-    default: 0,
-  },
-  amounts_total: {
-    type: Number,
-    default: 0,
-  },
-  owners_total: {
-    type: Number,
-    default: 0,
-  },
-  volume_change: {
-    type: String,
-    default: '',
-  },
-  average_price_change: {
-    type: String,
-    default: '',
-  },
-  market_cap: {
-    type: Number,
-    default: 0,
-  },
-  market_trend: {
-    type: String,
-    default: '',
-  },
-  mint_average_price: {
-    type: Number,
-    default: 0,
-  },
-  volume_7d: [{
-    type: Object,
-    default: {},
   }],
-  price_7d: [{
-    type: Object,
-    default: {},
+  total_owners: [{
+    type: String,
+    default: '',
   }],
-  gas_fee_1h: {
+  link: {
+    type: String,
+    default: '',
+  },
+  total_minted: [{
     type: Number,
     default: 0,
-  },
-  gas_fee_12h: {
-    type: Number,
-    default: 0,
-  },
-  gas_fee_24h: {
-    type: Number,
-    default: 0,
-  },
-  gas_24h: [{
-    type: Object,
-    default: {},
   }],
+  time_ranges: {
+    today: {
+      volume: {
+        type: Number,
+        default: 0,
+      },
+      total_tx: {
+        type: String,
+        default: '',
+      },
+      total_assets: {
+        type: String,
+        default: '',
+      },
+    },
+    week: {
+      volume: {
+        type: Number,
+        default: 0,
+      },
+      total_tx: {
+        type: String,
+        default: '',
+      },
+      total_assets: {
+        type: String,
+        default: '',
+      },
+    },
+    month: {
+      volume: {
+        type: Number,
+        default: 0,
+      },
+      total_tx: {
+        type: String,
+        default: '',
+      },
+      total_assets: {
+        type: String,
+        default: '',
+      },
+    },
+    all: {
+      volume: {
+        type: Number,
+        default: 0,
+      },
+      total_tx: {
+        type: String,
+        default: '',
+      },
+      total_assets: {
+        type: String,
+        default: '',
+      },
+    },
+  },
 });
 
 module.exports = mongoose.model("nfts", schema);

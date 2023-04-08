@@ -40,10 +40,10 @@ const schema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  exchanges: {
-    type: [ExchangeSchema],
-    default: [{}],
-  },
+  exchanges: [{
+    type: Object,
+    default: {},
+  }],
   id: {
     type: String,
     default: '',

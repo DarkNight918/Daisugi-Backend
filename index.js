@@ -14,7 +14,8 @@ const {
 const {
   getNFTMarketPlaceData,
   getNFTTradersData,
-  getNFTDdata,
+  getNFTTrendingdata,
+  getNFTData,
 } = require('./services/nft.service');
 
 const {
@@ -90,7 +91,7 @@ function getAllInfo() {
   // updateIntotheBlockCoins();
   // getNFTMarketPlaceData();
   // getNFTTradersData();
-  // getTopCoinsData();
+  getTopCoinsData();
   // getDEXData();
   // getCEXData();
   // getTvlProtocolData();
@@ -100,7 +101,8 @@ function getAllInfo() {
   // getBridgeData()
   // getChainData()
   // getRichAddressData()
-  getNFTDdata()
+  // getNFTTrendingdata()
+  // getNFTData();
 }
 
 // process.on("unhandledRejection", (err) => {
