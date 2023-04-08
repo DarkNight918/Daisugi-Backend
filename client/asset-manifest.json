@@ -1,19 +1,19 @@
 {
   "files": {
-    "main.css": "/static/css/main.a2a99f2f.css",
-    "main.js": "/static/js/main.cf64d844.js",
+    "main.css": "/static/css/main.28bb7380.css",
+    "main.js": "/static/js/main.c403573d.js",
     "static/js/787.28cb0dcd.chunk.js": "/static/js/787.28cb0dcd.chunk.js",
     "static/media/trendingCoin.gif": "/static/media/trendingCoin.db2c9fb04bfdea3b2651.gif",
     "static/media/Logo.png": "/static/media/Logo.36992cac8fe5c32bfa13.png",
     "static/media/dashboard.png": "/static/media/dashboard.2a5fba290f0d1eecc92d.png",
     "static/media/CoinMarket.gif": "/static/media/CoinMarket.61f94cb26b30be6b1ef2.gif",
     "index.html": "/index.html",
-    "main.a2a99f2f.css.map": "/static/css/main.a2a99f2f.css.map",
-    "main.cf64d844.js.map": "/static/js/main.cf64d844.js.map",
+    "main.28bb7380.css.map": "/static/css/main.28bb7380.css.map",
+    "main.c403573d.js.map": "/static/js/main.c403573d.js.map",
     "787.28cb0dcd.chunk.js.map": "/static/js/787.28cb0dcd.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.a2a99f2f.css",
-    "static/js/main.cf64d844.js"
+    "static/css/main.28bb7380.css",
+    "static/js/main.c403573d.js"
   ]
 }
