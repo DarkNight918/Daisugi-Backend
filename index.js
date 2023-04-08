@@ -91,8 +91,8 @@ function getAllInfo() {
   // updateIntotheBlockCoins();
   // getNFTMarketPlaceData();
   // getNFTTradersData();
-  getTopCoinsData();
-  // getDEXData();
+  // getTopCoinsData();
+  // getDEXData(); 
   // getCEXData();
   // getTvlProtocolData();
   // getTvlChainData();
