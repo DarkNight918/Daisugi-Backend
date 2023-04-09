@@ -5,6 +5,7 @@ const cors = require("cors");
 const path = require("path");
 
 const coinRouter = require("./routes/coin");
+const exchangeRouter = require("./routes/exchanges");
 
 // Start Express
 const app = express();
@@ -37,6 +38,7 @@ app.get("/", (req, res) => {
 
 // Routes
 app.use("/api/coin", coinRouter);
+app.use("/api/exchange", exchangeRouter);
 
 // Add wildcard route for all other URLs
 app.get("*", (req, res) => {
