@@ -45,6 +45,31 @@ exports.getTopCoins = async (req, res) => {
   }
 };
 
+exports.getAll = async (req, res) => {
+
+  // Find coins with a case-insensitive regular expression to match the symbol field
+  try {
+
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 25;
+
+    // Get total page size
+    const totalCount = await Coin.countDocuments();
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    const coins = await Coin.find({})
+      .sort({ marketCap: -1 })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .select('name symbol imgURL marketCap price hourlyChanged weeklyChanged monthlyChanged quarterlyChanged yearlyChanged')
+    
+    return res.status(200).json({totalPages, data : coins});
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 exports.getGainers = async (req, res) => {
   try {
     // Get sortfield from the params in API URL
@@ -59,7 +84,7 @@ exports.getGainers = async (req, res) => {
     const pageSize = parseInt(req.query.pageSize) || 25;
 
     // Get total page size
-    const totalCount = await Coin.countDocuments({ [field]: { $lt: 1, $gt: 0 } });
+    const totalCount = await Coin.countDocuments({ [field]: { $gt: 1 } });
     const totalPages = Math.ceil(totalCount / pageSize);
     
     const gainers = await Coin.find({ [field]: { $gt: 1 } })
