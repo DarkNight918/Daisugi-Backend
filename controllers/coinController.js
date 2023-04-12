@@ -1,5 +1,6 @@
 const Coin = require("../models/coins");
 const TopCoins = require("../models/coin_toplists");
+const { stableCoins } = require('../data/data')
 
 exports.getCoinByName = async (req, res) => {
   const name = req.params.name;
@@ -27,6 +28,29 @@ exports.getCoinByName = async (req, res) => {
     }
 
     return res.status(200).json({ coins });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+exports.getStableCoins = async (req, res) => {
+  try {
+
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 25;
+
+    const totalCount = await Coin.countDocuments({ symbol: { $in: stableCoins } });
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    const data = await Coin.find({ symbol: { $in: stableCoins } })
+      .sort({ marketCap: -1 })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .select('name symbol imgURL marketCap price hourlyChanged weeklyChanged monthlyChanged quarterlyChanged yearlyChanged')
+    
+    return res.status(200).json({ totalPages, data });
+
   } catch (err) {
     console.log(err);
     return res.status(500).json({ message: "Internal Server Error" });
@@ -93,7 +117,7 @@ exports.getGainers = async (req, res) => {
       .limit(pageSize)
       .select(
         'name symbol imgURL marketCap price hourlyChanged weeklyChanged monthlyChanged quarterlyChanged yearlyChanged'
-      );
+      );Z
 
     res.status(200).json({ totalPages, gainers });
   } catch (err) {

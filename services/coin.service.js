@@ -5,7 +5,6 @@ const cron = require("node-cron");
 
 const Coin = require("../models/coins");
 const TopCoins = require("../models/coin_toplists");
-const StableCoins = require("../models/coin_stablecoins");
 
 const Bottleneck = require("bottleneck");
 const limiter = new Bottleneck({ maxConcurrent: 5, minTime: 100 });
@@ -360,51 +359,10 @@ const getTopCoinsData = async () => {
   }
 };
 
-// DefiLlama ------------------ Get stable coins data
-
-const getStableCoinsData = async () => {
-  const apiUrl = "https://stablecoins.llama.fi/stablecoins?includePrices=true";
-  const config = {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  };
-
-  // await StableCoins.deleteMany();
-
-  try {
-    const response = await axios.get(apiUrl, config);
-    const stableCoinData = response.data.peggedAssets;
-
-    stableCoinData.map(async (data) => {
-      const existingCoin = await StableCoins.findOne({ name: data.name })
-
-      if (existingCoin) {
-        await StableCoins.updateOne({ name: data.name }, { $set: data });
-      } else {
-        const stableCoinData = new StableCoins(data);
-        stableCoinData.save();
-      }
-
-      console.log(
-        `DefiLlama --------- Stable Coin Data ${stableCoinData.name} is sucessfully updated.`
-      );
-    });
-    console.log(
-      `---------- Getting DefiLlama Information is successfully finished! ----------`
-    );
-  } catch (err) {
-    console.error(
-      `DefiLlama --------- Updating Stable Coin Data error: ${err}`
-    );
-  }
-};
-
 module.exports = {
   getLiveCoinWatchData,
   updateIntotheBlockCoins,
   getIntheBlockCoinData,
   updateTokenInsightCoins,
   getTopCoinsData,
-  getStableCoinsData,
 };

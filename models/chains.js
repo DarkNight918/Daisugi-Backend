@@ -13,6 +13,14 @@ const schema = new mongoose.Schema({
     type: String,
     default: '',
   },
+  tvl: {
+    type: Number,
+    default: 0,
+  },
+  chainId: {
+    type: Number,
+    default: 0,
+  },
   lastHeight: {
     type: String,
     default: '',

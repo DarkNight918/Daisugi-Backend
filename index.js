@@ -8,7 +8,6 @@ const {
   updateIntotheBlockCoins,
   updateTokenInsightCoins,
   getTopCoinsData,
-  getStableCoinsData
 } = require("./services/coin.service");
 
 const {
@@ -96,7 +95,6 @@ function getAllInfo() {
   // getCEXData();
   // getTvlProtocolData();
   // getTvlChainData();
-  // getStableCoinsData();
   // getPoolsData();
   // getBridgeData()
   // getChainData()

@@ -2,7 +2,7 @@ const axios = require('axios');
 const DEXData = require('../models/exchanges_dexes')
 const CEXData = require('../models/exchanges_cexes')
 const TvlProtocolData = require('../models/tvl_protocols')
-const TvlChainData = require('../models/tvl_chains')
+const Chain = require('../models/chains')
 const PoolData = require('../models/pools')
 const BridgeData = require('../models/bridges')
 const cron = require("node-cron");
@@ -179,19 +179,32 @@ const getTvlChainData = async () => {
     },
   };
 
-  await TvlChainData.deleteMany()
-
   try {
     const response = await axios.get(apiUrl, config);
     const tvlChainData = response.data;
 
-    tvlChainData.map(tvlData => {
-      const tvlChainData = new TvlChainData(tvlData)
-      tvlChainData.save();
+    tvlChainData.map(async (tvlData) => {
+      // Set chainshortname to the value of tokenSymbol
+      tvlData.chainshortname = tvlData.tokenSymbol;
+      // const chain = await Chain.findOne({ chainFullName: tvlData.name });
+
+      // if (chain) {
+      //   chain.tvl = tvlData.tvl;
+      //   chain.chainId = tvlData.chainId;
+      //   await chain.save();
+      //   console.log(
+      //     `DefiLlama --------- TVL Chain Data ${tvlData.name} is successfully updated.`
+      //   );
+      // }
+
+      await Chain.updateOne(
+        { chainFullName: tvlData.name },
+        { $set: tvlData },
+        { upsert: true }
+      );
 
       console.log(`DefiLlama --------- TVL Chain Data ${tvlData.name} is sucessfully updated.`)
     })
-    console.log(`---------- Getting DefiLlama Information is successfully finished! ----------`);
   } catch (err) {
     console.error(`DefiLlama --------- Updating TVL Chain Data error: ${err}`);
   }
