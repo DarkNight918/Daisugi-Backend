@@ -117,7 +117,7 @@ exports.getGainers = async (req, res) => {
       .limit(pageSize)
       .select(
         'name symbol imgURL marketCap price hourlyChanged weeklyChanged monthlyChanged quarterlyChanged yearlyChanged'
-      );Z
+      );
 
     res.status(200).json({ totalPages, gainers });
   } catch (err) {
