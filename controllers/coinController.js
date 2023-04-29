@@ -94,6 +94,40 @@ exports.getAll = async (req, res) => {
   }
 };
 
+exports.getTotalGainers = async (req, res) => {
+
+  // Find coins with a case-insensitive regular expression to match the symbol field
+  try {
+
+    const coins = await Coin.find({ dailyChanged: {$gt: 1} })
+      .sort({ dailyChanged: -1 })
+      .limit(5)
+      .select('name symbol imgURL price dailyChanged')
+    
+    return res.status(200).json(coins);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+exports.getTotalLosers = async (req, res) => {
+
+  // Find coins with a case-insensitive regular expression to match the symbol field
+  try {
+
+    const coins = await Coin.find({ dailyChanged: {$gt: 0} })
+      .sort({ dailyChanged: 1 })
+      .limit(5)
+      .select('name symbol imgURL price dailyChanged')
+    
+    return res.status(200).json(coins);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 exports.getGainers = async (req, res) => {
   try {
     // Get sortfield from the params in API URL
