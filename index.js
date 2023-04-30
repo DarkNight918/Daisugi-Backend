@@ -70,18 +70,18 @@ const io = require("socket.io")(server, {
 });
 
 // Initialize socket.io server
-io.on("connection", (socket) => {
-  console.log(`user just connected`, socket.id);
+// io.on("connection", (socket) => {
+//  console.log(`user just connected`, socket.id);
   // publishAllInfo(socket);
 
-  socket.on("NextCoinInfo", data => {
-    publishAllInfo(socket, data)
-  })
+//  socket.on("NextCoinInfo", data => {
+//    publishAllInfo(socket, data)
+//  })
 
-  socket.on("disconnect", () => {
-    console.log("🔥: A user disconnected.");
-  });
-});
+//  socket.on("disconnect", () => {
+//    console.log("🔥: A user disconnected.");
+//  });
+// });
 
 function getAllInfo() {
   // getLiveCoinWatchData();
