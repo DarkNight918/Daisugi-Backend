@@ -1,46 +1,46 @@
 const mongoose = require("mongoose");
-const socket = require("socket.io");
+// const socket = require("socket.io");
 const dotenv = require("dotenv");
 
-const {
-  getIntheBlockCoinData,
-  getLiveCoinWatchData,
-  updateIntotheBlockCoins,
-  updateTokenInsightCoins,
-  getTopCoinsData,
-} = require("./services/coin.service");
+// const {
+//   getIntheBlockCoinData,
+//   getLiveCoinWatchData,
+//   updateIntotheBlockCoins,
+//   updateTokenInsightCoins,
+//   getTopCoinsData,
+// } = require("./services/coin.service");
 
-const {
-  getNFTMarketPlaceData,
-  getNFTTradersData,
-  getNFTTrendingdata,
-  getNFTData,
-} = require('./services/nft.service');
+// const {
+//   getNFTMarketPlaceData,
+//   getNFTTradersData,
+//   getNFTTrendingdata,
+//   getNFTData,
+// } = require('./services/nft.service');
 
-const {
-  getDEXData,
-  getCEXData,
-  getTvlProtocolData,
-  getTvlChainData,
-  getPoolsData,
-  getBridgeData
-} = require('./services/exchange.service')
+// const {
+//   getDEXData,
+//   getCEXData,
+//   getTvlProtocolData,
+//   getTvlChainData,
+//   getPoolsData,
+//   getBridgeData
+// } = require('./services/exchange.service')
 
-const {
-  getChainData,
-} = require('./services/chains.service')
+// const {
+//   getChainData,
+// } = require('./services/chains.service')
 
-const {
-  getRichAddressData,
-} = require('./services/address.service')
+// const {
+//   getRichAddressData,
+// } = require('./services/address.service')
 
-const publishAllInfo = require("./services/publish.service");
+// const publishAllInfo = require("./services/publish.service");
 
-// process.on("uncaughtException", (err) => {
-//   console.log("UNCAUGHT EXCEPTION! 💥 Shutting down.....");
-//   console.log(err.name, err.message);
-//   process.exit(1);
-// });
+process.on("uncaughtException", (err) => {
+  console.log("UNCAUGHT EXCEPTION! 💥 Shutting down.....");
+  console.log(err.name, err.message);
+  process.exit(1);
+});
 
 dotenv.config();
 const app = require("./app");
@@ -103,10 +103,10 @@ function getAllInfo() {
   // getNFTData();
 }
 
-// process.on("unhandledRejection", (err) => {
-//   console.log("UNHANDLED REJECTION! 💥 Shutting down.....");
-//   console.log(err.name, err.message);
-//   server.close(() => {
-//     process.exit(1);
-//   });
-// });
+process.on("unhandledRejection", (err) => {
+  console.log("UNHANDLED REJECTION! 💥 Shutting down.....");
+  console.log(err.name, err.message);
+  server.close(() => {
+    process.exit(1);
+  });
+});
