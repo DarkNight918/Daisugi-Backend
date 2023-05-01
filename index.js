@@ -58,16 +58,16 @@ const server = app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 
   // Get started to call third party API for information
-  getAllInfo();
+  // getAllInfo();
 });
 
 // const io = socket(server);
 
-const io = require("socket.io")(server, {
-  cors: {
-    origin: "*",
-  },
-});
+// const io = require("socket.io")(server, {
+//   cors: {
+//     origin: "*",
+//   },
+// });
 
 // Initialize socket.io server
 // io.on("connection", (socket) => {
@@ -83,7 +83,7 @@ const io = require("socket.io")(server, {
 //  });
 // });
 
-function getAllInfo() {
+// function getAllInfo() {
   // getLiveCoinWatchData();
   // updateTokenInsightCoins();
   // getIntheBlockCoinData();
@@ -101,7 +101,7 @@ function getAllInfo() {
   // getRichAddressData()
   // getNFTTrendingdata()
   // getNFTData();
-}
+// }
 
 process.on("unhandledRejection", (err) => {
   console.log("UNHANDLED REJECTION! 💥 Shutting down.....");
