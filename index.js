@@ -2,39 +2,39 @@ const mongoose = require("mongoose");
 // const socket = require("socket.io");
 const dotenv = require("dotenv");
 
-// const {
+const {
 //   getIntheBlockCoinData,
-//   getLiveCoinWatchData,
+    getLiveCoinWatchData,
 //   updateIntotheBlockCoins,
 //   updateTokenInsightCoins,
 //   getTopCoinsData,
-// } = require("./services/coin.service");
+} = require("./services/coin.service");
 
-// const {
+const {
 //   getNFTMarketPlaceData,
 //   getNFTTradersData,
 //   getNFTTrendingdata,
 //   getNFTData,
-// } = require('./services/nft.service');
+} = require('./services/nft.service');
 
-// const {
+const {
 //   getDEXData,
 //   getCEXData,
 //   getTvlProtocolData,
 //   getTvlChainData,
 //   getPoolsData,
 //   getBridgeData
-// } = require('./services/exchange.service')
+} = require('./services/exchange.service')
 
-// const {
+const {
 //   getChainData,
-// } = require('./services/chains.service')
+} = require('./services/chains.service')
 
-// const {
+const {
 //   getRichAddressData,
-// } = require('./services/address.service')
+} = require('./services/address.service')
 
-// const publishAllInfo = require("./services/publish.service");
+const publishAllInfo = require("./services/publish.service");
 
 process.on("uncaughtException", (err) => {
   console.log("UNCAUGHT EXCEPTION! 💥 Shutting down.....");
@@ -83,8 +83,8 @@ const server = app.listen(port, () => {
 //  });
 // });
 
-// function getAllInfo() {
-  // getLiveCoinWatchData();
+function getAllInfo() {
+  getLiveCoinWatchData();
   // updateTokenInsightCoins();
   // getIntheBlockCoinData();
   // updateIntotheBlockCoins();
@@ -101,7 +101,7 @@ const server = app.listen(port, () => {
   // getRichAddressData()
   // getNFTTrendingdata()
   // getNFTData();
-// }
+}
 
 process.on("unhandledRejection", (err) => {
   console.log("UNHANDLED REJECTION! 💥 Shutting down.....");

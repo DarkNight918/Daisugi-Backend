@@ -128,6 +128,22 @@ exports.getTotalLosers = async (req, res) => {
   }
 };
 
+exports.getCoinRanks = async (req, res) => {
+  try {
+    
+    const gainers = await Coin.find()
+      .sort({ rank: 1 })
+      .limit(5)
+      .select(
+        'name symbol imgURL price hourlyChanged'
+      );
+
+    res.status(200).json(gainers);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
 exports.getGainers = async (req, res) => {
   try {
     // Get sortfield from the params in API URL
