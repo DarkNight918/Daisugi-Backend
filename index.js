@@ -3,36 +3,36 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
 const {
-//   getIntheBlockCoinData,
-    getLiveCoinWatchData,
-//   updateIntotheBlockCoins,
-//   updateTokenInsightCoins,
-//   getTopCoinsData,
+  //   getIntheBlockCoinData,
+  getLiveCoinWatchData,
+  //   updateIntotheBlockCoins,
+  //   updateTokenInsightCoins,
+  getTopCoinsData,
 } = require("./services/coin.service");
 
 const {
-//   getNFTMarketPlaceData,
-//   getNFTTradersData,
-//   getNFTTrendingdata,
-//   getNFTData,
-} = require('./services/nft.service');
+  //   getNFTMarketPlaceData,
+  //   getNFTTradersData,
+  //   getNFTTrendingdata,
+  //   getNFTData,
+} = require("./services/nft.service");
 
 const {
-//   getDEXData,
-//   getCEXData,
-//   getTvlProtocolData,
-//   getTvlChainData,
-//   getPoolsData,
-//   getBridgeData
-} = require('./services/exchange.service')
+  //   getDEXData,
+  //   getCEXData,
+  //   getTvlProtocolData,
+  //   getTvlChainData,
+  //   getPoolsData,
+  //   getBridgeData
+} = require("./services/exchange.service");
 
 const {
-//   getChainData,
-} = require('./services/chains.service')
+  //   getChainData,
+} = require("./services/chains.service");
 
 const {
-//   getRichAddressData,
-} = require('./services/address.service')
+  //   getRichAddressData,
+} = require("./services/address.service");
 
 const publishAllInfo = require("./services/publish.service");
 
@@ -72,7 +72,7 @@ const server = app.listen(port, () => {
 // Initialize socket.io server
 // io.on("connection", (socket) => {
 //  console.log(`user just connected`, socket.id);
-  // publishAllInfo(socket);
+// publishAllInfo(socket);
 
 //  socket.on("NextCoinInfo", data => {
 //    publishAllInfo(socket, data)
@@ -84,14 +84,14 @@ const server = app.listen(port, () => {
 // });
 
 function getAllInfo() {
-  getLiveCoinWatchData();
+  // getLiveCoinWatchData();
   // updateTokenInsightCoins();
   // getIntheBlockCoinData();
   // updateIntotheBlockCoins();
   // getNFTMarketPlaceData();
   // getNFTTradersData();
-  // getTopCoinsData();
-  // getDEXData(); 
+  getTopCoinsData();
+  // getDEXData();
   // getCEXData();
   // getTvlProtocolData();
   // getTvlChainData();
