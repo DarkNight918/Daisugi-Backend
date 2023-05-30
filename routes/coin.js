@@ -12,4 +12,4 @@ router.get('/topcoins', coinController.getTopCoins);
 router.get('/stablecoins', coinController.getStableCoins);
 router.get('/:name', coinController.getCoinByName);
 
-module.exports = router;  
+module.exports = router;
