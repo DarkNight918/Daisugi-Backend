@@ -1,11 +1,9 @@
 const NEWS = require("../models/news");
 
-exports.getNews = async (req, res) => {
+exports.getTopNews = async (req, res) => {
 
   try {
 
-    const page = parseInt(req.query.page) || 1;
-    const pageSize = parseInt(req.query.pageSize) || 25;
 
     // Get total page size
     const totalCount = await CEX.countDocuments();
