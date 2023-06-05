@@ -122,22 +122,162 @@ exports.getTradeRank = async (req, res) => {
   }
 }
 
-// // get NFT Gas Rank
-// exports.getGasRank = async (req, res) => {
+// get NFT Gas Rank
+exports.getGasRank = async (req, res) => {
 
-//   const config = {
-//     headers: {
-//       "X-API-KEY": process.env.NFTSCAN_API_KEY,
-//     },
-//   };
+  const config = {
+    headers: {
+      "X-API-KEY": process.env.NFTSCAN_API_KEY,
+    },
+  };
 
-//   try {
+  try {
 
-//     const response = await axios.get(`https://restapi.nftscan.com/api/v2/statistics/ranking/collection?sort_field=volume_1d&sort_direction=desc&limit=50`, config)
-//     const data = response.data.data
-//     return res.status(200).json(data)
+    const response = await axios.get(`https://restapi.nftscan.com/api/v2/statistics/ranking/gas?show_24h_trends=false`, config)
+    const data = response.data.data
+    return res.status(200).json(data)
 
-//   } catch (err) {
-//     res.status(500).json({ error: err.message })
-//   }
-// }
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+}
+
+// get NFT Traders Rank
+exports.getTradersRank = async (req, res) => {
+
+  const config = {
+    headers: {
+      "X-API-KEY": process.env.NFTSCAN_API_KEY,
+    },
+  };
+
+  try {
+
+    const response = await axios.get(`https://restapi.nftscan.com/api/v2/statistics/ranking/traders?time=1d&trade_type=buy`, config)
+    const data = response.data.data
+    return res.status(200).json(data)
+
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+}
+
+// get NFT Traders by wallet rank
+exports.getTradersWallet = async (req, res) => {
+
+  const config = {
+    headers: {
+      "X-API-KEY": process.env.NFTSCAN_API_KEY,
+    },
+  };
+
+  try {
+
+    const response = await axios.get(`https://restapi.nftscan.com/api/v2/statistics/ranking/wallet?sort_field=holding_volume&sort_direction=desc&limit=50`, config)
+    const data = response.data.data
+    return res.status(200).json(data)
+
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+}
+
+// get Wallet Trading
+exports.getWalletTradeRank = async (req, res) => {
+
+  const config = {
+    headers: {
+      "X-API-KEY": process.env.NFTSCAN_API_KEY,
+    },
+  };
+
+  try {
+
+    const response = await axios.get(`https://restapi.nftscan.com/api/v2/statistics/ranking/trade/wallet?sort_field=trade_volume&sort_direction=desc`, config)
+    const data = response.data.data
+    return res.status(200).json(data)
+
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+}
+
+// get NFT Mint Rank
+exports.getNFTMintRank = async (req, res) => {
+
+  const config = {
+    headers: {
+      "X-API-KEY": process.env.NFTSCAN_API_KEY,
+    },
+  };
+
+  try {
+
+    const response = await axios.get(`https://restapi.nftscan.com/api/v2/statistics/ranking/mint?time=1d`, config)
+    const data = response.data.data
+    return res.status(200).json(data)
+
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+}
+
+// get NFT Mint Amount
+exports.getNFTMintAmount = async (req, res) => {
+
+  const config = {
+    headers: {
+      "X-API-KEY": process.env.NFTSCAN_API_KEY,
+    },
+  };
+
+  try {
+
+    const response = await axios.get(`https://restapi.nftscan.com/api/v2/statistics/mint/amount?time=1d`, config)
+    const data = response.data.data
+    return res.status(200).json(data)
+
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+}
+
+// get Solana NFT Rank
+exports.getSolanaNFTRank = async (req, res) => {
+
+  const config = {
+    headers: {
+      "X-API-KEY": process.env.NFTSCAN_API_KEY,
+    },
+  };
+
+  try {
+
+    const response = await axios.get(`https://solanaapi.nftscan.com/api/sol/statistics/ranking/trade?time=1d&sort_field=volume&sort_direction=desc`, config)
+    const data = response.data.data
+    return res.status(200).json(data)
+
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+}
+
+// get Aptos NFT Rank
+exports.getAptosNFTRank = async (req, res) => {
+
+  const config = {
+    headers: {
+      "X-API-KEY": process.env.NFTSCAN_API_KEY,
+    },
+  };
+
+  try {
+
+    const response = await axios.get(`https://aptosapi.nftscan.com/api/apt/statistics/ranking/trade?time=1d&sort_field=volume&sort_direction=desc`, config)
+    const data = response.data.data
+    return res.status(200).json(data)
+
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+}
