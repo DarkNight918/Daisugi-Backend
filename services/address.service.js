@@ -32,8 +32,6 @@ const getRichAddressData = async () => {
       richAddressInfo.map(async (data) => {
         const newAddress = new RichAddressData(data);
         await newAddress.save();
-
-        console.log(`OkLink --------- ${data.address} rich address of ${data.symbol} is updated.`)
       })
     }
 

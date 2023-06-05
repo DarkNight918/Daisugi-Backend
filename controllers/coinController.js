@@ -1,5 +1,7 @@
+const axios = require('axios');
 const Coin = require("../models/coins");
 const TopCoins = require("../models/coin_toplists");
+const CoinInfluencers = require("../models/coin_influencers")
 const { stableCoins } = require('../data/data')
 
 exports.getCoinByName = async (req, res) => {
@@ -7,11 +9,11 @@ exports.getCoinByName = async (req, res) => {
 
   // Find coins with a case-insensitive regular expression to match the symbol field
   try {
-    const coins = await Coin.find({
+    const coin = await Coin.findOne({
       name: { $regex: new RegExp("^" + name + "$", "i") },
     });
 
-    if (!coins.length) {
+    if (!coin) {
       // Create a new coin with empty variables
       const newCoin = new Coin({
         name: name,
@@ -24,13 +26,12 @@ exports.getCoinByName = async (req, res) => {
         largeTxs: [],
       });
       await newCoin.save();
-      return res.status(200).json({ coins: [newCoin] });
+      return res.status(200).json({ coin: newCoin });
     }
 
-    return res.status(200).json({ coins });
+    return res.status(200).json({ coin });
   } catch (err) {
-    console.log(err);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).json({ error: err.message });
   }
 };
 
@@ -205,3 +206,60 @@ exports.getLosers = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 }
+
+exports.getCoinInfluencers = async (req, res) => {
+  try {
+    // Validate that the interval was provided and is one of the expected values
+    const validIntervals = ['1d', '1w', '1m', '3m', '6m', '1y', '2y', 'all'];
+    const interval = req.query.interval;
+    
+    if (!interval || !validIntervals.includes(interval)) {
+      return res.status(400).json({ error: 'Invalid interval' });
+    }
+
+    // Map the interval to the corresponding field in the database document
+    const intervalFieldMap = {
+      '1d': 'oneday',
+      '1w': 'oneweek',
+      '1m': 'onemonth',
+      '3m': 'threemonths',
+      '6m': 'sixmonths',
+      '1y': 'oneyear',
+      '2y': 'twoyears',
+      'all': 'all'
+    };
+
+    const influencers = await CoinInfluencers.findOne();
+    if (!influencers) {
+      return res.status(404).json({ error: 'No data found' });
+    }
+    
+    const data = influencers[intervalFieldMap[interval]]
+    res.status(200).json(data);
+
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+}
+
+exports.getInfluencerProfile = async (req, res) => {
+  
+  const influencer = req.params.influencer;
+  const lunarConfig = {
+    headers: {
+      "Authorization": 'Bearer ' + process.env.LUNARCRUSH_API_KEY,
+    },
+  };
+
+  // Get Influencer Profile
+  try {
+
+    const response = await axios.get(`https://lunarcrush.com/api3/influencers/${influencer}`, lunarConfig)
+    const data = response.data.data;
+
+    return res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};

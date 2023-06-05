@@ -8,6 +8,7 @@ const {
   //   updateIntotheBlockCoins,
   //   updateTokenInsightCoins,
   getTopCoinsData,
+  getCoinInfluencers,
 } = require("./services/coin.service");
 
 const {
@@ -15,6 +16,7 @@ const {
   //   getNFTTradersData,
   //   getNFTTrendingdata,
   //   getNFTData,
+  getNFTInfluencers,
 } = require("./services/nft.service");
 
 const {
@@ -51,14 +53,14 @@ const DB = process.env.DATABASE.replace(
 );
 mongoose.connect(DB).then(() => console.log("DB successfully connected"));
 
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 5000;
 
 // Start the Server
 const server = app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 
   // Get started to call third party API for information
-  // getAllInfo();
+  getAllInfo();
 });
 
 // const io = socket(server);
@@ -90,7 +92,9 @@ function getAllInfo() {
   // updateIntotheBlockCoins();
   // getNFTMarketPlaceData();
   // getNFTTradersData();
-  getTopCoinsData();
+  // getNFTInfluencers();
+  // getTopCoinsData();
+  // getCoinInfluencers()
   // getDEXData();
   // getCEXData();
   // getTvlProtocolData();

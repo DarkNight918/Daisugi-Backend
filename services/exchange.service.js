@@ -42,10 +42,6 @@ const getDEXData = async () => {
         { $set: exchange },
         { upsert: true }
       );
-
-      console.log(
-        `DefiLlama --------- DEX Data ${exchange.name} sucessfully updated.`
-      );
     });
 
     // Get information for dailiyfees for dex
@@ -65,18 +61,13 @@ const getDEXData = async () => {
         existingDex.dailyFees = data.dailyFees || 0;
 
         await existingDex.save();
-        console.log(
-          `DefiLlama --------- DEX Fee Data for ${data.name} successfully updated.`
-        );
       }
     });
 
     // Wait for all promises to resolve
     await Promise.all(updateDexPromises);
 
-    console.log(
-      `---------- Getting DefiLlama DEX Information is successfully finished! ----------`
-    );
+    console.log('DefiLlama --------- DEX Information is successfully updated!');
   } catch (err) {
     console.error(`DefiLlama --------- Updating DEX Data error: ${err}`);
   }
@@ -113,9 +104,6 @@ const getCEXData = async () => {
     for (const data of tokenInsightData) {
       const eachCEXData = new CEXData(data);
       await eachCEXData.save();
-      console.log(
-        `TokenInsight --------- CEX Data ${eachCEXData.exchange_name} sucessfully updated.`
-      );
 
       try {
         const requestData = {
@@ -141,15 +129,11 @@ const getCEXData = async () => {
 
         // Save the updated eachTokenData
         await eachCEXData.save();
-        console.log(
-          `LiveCoinWatch --------- CEX Data ${eachCEXData.exchange_name} successfully updated.`
-        );
       } catch (err) {
-        console.error(
-          `LiveCoinWatch --------- Fetching data for ${eachCEXData.exchange_name} error: ${err}`
-        );
+        console.error(`LiveCoinWatch --------- Fetching data for ${eachCEXData.exchange_name} error: ${err}`);
       }
     }
+    console.log("LiveCoinWatch --------- CEX Data is successfully updated.");
   } catch (err) {
     console.error(`TokenInsight --------- Updating CEX Data error: ${err}`);
   }
@@ -194,13 +178,9 @@ const getTvlProtocolData = async () => {
           { name: feedata.name },
           { $set: feedata }
         );
-
-        console.log(
-          `DefiLlama --------- TVL Fee Data ${feedata.name} is sucessfully updated.`
-        );
       }
     })
-
+    console.log("DefiLlama --------- TVL Fee Data is sucessfully updated.");
   } catch (err) {
     console.error(`DefiLlama --------- Updating TVL Data error: ${err}`);
   }
@@ -237,11 +217,8 @@ const getTvlChainData = async () => {
         { $set: tvlData },
         { upsert: true }
       );
-
-      console.log(
-        `DefiLlama --------- TVL Chain Data ${tvlData.name} is sucessfully updated.`
-      );
     });
+    console.log("DefiLlama --------- TVL Chain Data is sucessfully updated.");
   } catch (err) {
     console.error(`DefiLlama --------- Updating TVL Chain Data error: ${err}`);
   }
@@ -266,14 +243,10 @@ const getPoolsData = async () => {
     poolData.map((data) => {
       const eachPoolData = new PoolData(data);
       eachPoolData.save();
-
-      console.log(
-        `DefiLlama --------- Pool Data ${eachPoolData.project} is sucessfully updated.`
-      );
     });
-    console.log(
-      `---------- Getting DefiLlama Information is successfully finished! ----------`
-    );
+
+    console.log("DefiLlama --------- Pool Data is successfully finished! ----------");
+
   } catch (err) {
     console.error(`DefiLlama --------- Updating Pool Data error: ${err}`);
   }
@@ -297,14 +270,8 @@ const getBridgeData = async () => {
     bridgeData.map((data) => {
       const eachBridgeData = new BridgeData(data);
       eachBridgeData.save();
-
-      console.log(
-        `DefiLlama --------- Bridge Data ${eachBridgeData.name} is sucessfully updated.`
-      );
     });
-    console.log(
-      `---------- Getting DefiLlama Information is successfully finished! ----------`
-    );
+    console.log("DefiLlama --------- Bridge Data is successfully finished! ----------");
   } catch (err) {
     console.error(`DefiLlama --------- Updating Bridge Data error: ${err}`);
   }

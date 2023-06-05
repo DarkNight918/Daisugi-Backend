@@ -5,6 +5,8 @@ const cron = require("node-cron");
 
 const Coin = require("../models/coins");
 const TopCoins = require("../models/coin_toplists");
+const CoinGlobalChange = require("../models/coin_global_change")
+const CoinInfluencers = require("../models/coin_influencers")
 
 const Bottleneck = require("bottleneck");
 const limiter = new Bottleneck({ maxConcurrent: 5, minTime: 100 });
@@ -62,9 +64,6 @@ const getLiveCoinWatchData = () => {
 
           await existingCoin.save();
           coinData.push(existingCoin);
-          console.log(
-            `LiveCoinWatch ------ ${existingCoin.name} is Existing and Updated.`
-          );
         } else {
           // Create a new coin documnet with the with the fetched data
           const newCoin = new Coin({
@@ -84,9 +83,6 @@ const getLiveCoinWatchData = () => {
           });
 
           await newCoin.save();
-          console.log(
-            `LiveCoinWatch ------ ${newCoin.name} is new and Updated.`
-          );
         }
       }
     } catch (error) {
@@ -105,7 +101,7 @@ const getLiveCoinWatchData = () => {
     // }
 
     console.log(
-      "---------- Getting LiveCoinWatch Information is successfully finished! ----------"
+      "LiveCoinWatch ------- Coins data successfully finished! "
     );
   };
 
@@ -118,7 +114,6 @@ const getLiveCoinWatchData = () => {
 // IntotheBlock ------------------ update coin information from intotheblock API.
 
 const callIntotheBlockAPI = async (symbols, dateRange) => {
-  // set the header
   const config = {
     headers: {
       "X-Api-Key": process.env.INTOTHEBLOCK_API_KEY,
@@ -187,7 +182,7 @@ const updateIntotheBlockCoins = async () => {
 
   await callIntotheBlockAPI(symbols, dateRange);
   console.log(
-    "---------- Getting IntotheBlock Information is successfully finished! ----------"
+    "IntotheBlock ------- Successfuly Updated."
   );
 };
 
@@ -248,9 +243,6 @@ const updateTokenInsightCoins = async () => {
           if (existingCoin) {
             // Update the corresponding coin in the database with the new data
             await Coin.findOneAndUpdate({ name: coinName }, coin);
-            console.log(
-              `TokenInsight --------- ${coinName} is existing and updated`
-            );
           }
           // Check if there is an existing coin in the database
 
@@ -272,13 +264,10 @@ const updateTokenInsightCoins = async () => {
 
     await Promise.all(promises);
     console.log(
-      "---------- Getting TokenInsight Information is successfully finished! ----------"
+      "TokenInsight --------- Coin information is successfully updated! ----------"
     );
   } catch (err) {
     console.log(`TokenInsight --------- Updating coins error: ${err}`);
-    console.log(
-      "---------- Getting TokenInsight Information is failed. ----------"
-    );
   }
 };
 
@@ -346,18 +335,81 @@ const getTopCoinsData = async () => {
           chain: result.networkName,
         });
         await token.save();
-        console.log(
-          `Defined.fi --------- ${result.networkName} : ${token.name} is updated.`
-        );
       }
     }
-    console.log(
-      `---------- Getting Defiend Fi Information is successfully finished! ----------`
-    );
+    console.log(`Defined.fi --------- Top Coins are successfully updated.`);
   } catch (err) {
     console.error(`Defined.fi --------- Updating Top Coins error: ${err}`);
   }
 };
+
+// Get Global Coin Change data by time ranges from lunar crush.
+const getCoinGlobalChange = async () => {
+  const lunarConfig = {
+    headers: {
+      "Authorization": 'Bearer ' + process.env.LUNARCRUSH_API_KEY,
+    },
+  };
+
+  const intervals = ['1d', '1w', '1m', '3m', '6m', '1y', '2y', 'all'];
+  const fields = ['oneday', 'oneweek', 'onemonth', 'threemonths', 'sixmonths', 'oneyear', 'twoyears', 'all'];
+
+  try {
+    for (let i = 0; i < intervals.length; i++) {
+      try {
+        const response = await axios.get(`https://lunarcrush.com/api3/coins/global/change?interval=${intervals[i]}`, lunarConfig);
+        const data = response.data;
+        
+        // Save the data
+        let update = {};
+        update[fields[i]] = data;
+        
+        await CoinGlobalChange.findOneAndUpdate({}, update, { upsert: true });
+        
+      } catch (err) {
+        console.error(`Error for interval ${intervals[i]}`);
+      }
+    }
+    console.log(`Lunar crush --------- Coin Global Chnage data is updated.`);
+  } catch (err) {
+    console.error(`Lunar crush --------- updating coin global change error. ${err}`);
+  }
+}
+
+// Get coin influencers from Lunar crush
+
+const getCoinInfluencers = async () => {
+  const lunarConfig = {
+    headers: {
+      "Authorization": 'Bearer ' + process.env.LUNARCRUSH_API_KEY,
+    },
+  };
+
+  // Set the time ranges
+  const intervals = ['1d', '1w', '1m', '3m', '6m', '1y', '2y', 'all'];
+  const fields = ['oneday', 'oneweek', 'onemonth', 'threemonths', 'sixmonths', 'oneyear', 'twoyears', 'all'];
+
+  try {
+    for (let i = 0; i < intervals.length; i++) {
+      try {
+        const response = await axios.get(`https://lunarcrush.com/api3/coins/influencers?interval=${intervals[i]}`, lunarConfig);
+        const data = response.data.data;
+        
+        // Save the data
+        let update = {};
+        update[fields[i]] = data;
+        
+        await CoinInfluencers.findOneAndUpdate({}, update, { upsert: true });
+        
+      } catch (err) {
+        console.error(`Error for interval ${intervals[i]}`);
+      }
+    }
+    console.log(`Lunar crush --------- Coin Influencers data is updated.`);
+  } catch (err) {
+    console.error(`Lunar crush --------- updating coin influencers error. ${err}`);
+  }
+}
 
 module.exports = {
   getLiveCoinWatchData,
@@ -365,4 +417,6 @@ module.exports = {
   getIntheBlockCoinData,
   updateTokenInsightCoins,
   getTopCoinsData,
+  getCoinGlobalChange,
+  getCoinInfluencers,
 };

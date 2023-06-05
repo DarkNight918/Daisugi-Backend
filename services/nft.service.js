@@ -3,6 +3,9 @@ const NFTMarketPlace = require("../models/nft_marketplaces");
 const NFTTraders = require("../models/nft_traders");
 const NFTTrendingData = require("../models/nft_trendings");
 const NFTData = require("../models/nfts");
+const DayTopNFT = require("../models/daytopnft");
+const NFTGlobalData = require('../models/nft_global_data');
+const NFTInfluencers = require("../models/nft_influencers");
 const cron = require("node-cron");
 
 const chainAPI = [
@@ -140,17 +143,12 @@ const getNFTMarketPlaceData = async () => {
             newMarketPlace[volume] = item.volume;
 
             await newMarketPlace.save();
-            console.log(
-              `NFTScan --------- ${item.contract_name} of ${chain.chainName} is new and successfully updated.`
-            );
           }
         }
       }
     }
 
-    console.log(
-      "---------- Getting NFTScan Marketplace Information is successfully finished! ----------"
-    );
+    console.log("NFTScan --------- Marketplace Information is successfully updated.");
   } catch (err) {
     console.log(`NFTScan --------- Updating NFTMarketPace data error: ${err}`);
   }
@@ -256,11 +254,9 @@ const getNFTTradersData = async () => {
             };
 
             await newTrader.save();
-            console.log(
-              `NFTScan --------- NFT Trader ${item.account_address} of ${chain.chainName} is new and Updated`
-            );
             // }
           }
+          console.log("NFTScan --------- NFT Trader Information is successfully updated!");
         } catch (err) {
           console.log(
             `NFTScan --------- Updating NFT Traders Buy data error ${apiURL} : ${err}`
@@ -491,9 +487,98 @@ const getNFTData = async () => {
   }
 };
 
+// Get daily top NFT from lunar crush
+
+const getDailyTopNFT = async () => {
+  const lunarConfig = {
+    headers: {
+      "Authorization": 'Bearer ' + LUNARCRUSH_API_KEY,
+    },
+  };
+
+  try {
+    const response = await axios.get('https://lunarcrush.com/api3/nftoftheday', lunarConfig);
+    const data = response.data;
+
+    if (data.name && data.lunar_id) {
+      // Create a new document with the response data and current date
+      
+      const dayTopNFT = new DayTopNFT({
+        name: data.name,
+        lunar_id: data.lunar_id,
+        updated_date: new Date(),
+      })
+
+      await dayTopNFT.save()
+      console.log("Lunar Crush --------- Daily Top NFT is successfully updated.")
+    } else {
+      console.log("Lunar Crush --------- Data from Lunarcrush to get DailyTopNFT is not correct.")
+    }
+  } catch (err) {
+    console.error(`Lunar Crush --------- Updating Daily Top NFT error: ${err}`);
+  }
+}
+
+// Get Global NFT data
+const getGlobalNFTData = async () => {
+  const lunarConfig = {
+    headers: {
+      "Authorization": 'Bearer ' + LUNARCRUSH_API_KEY,
+    },
+  };
+
+  try {
+    const response = await axios.get('https://lunarcrush.com/api3/nftoftheday', lunarConfig);
+    const data = response.data;
+
+    await NFTGlobalData.findOneAndUpdate({}, { data }, { upsert: true });
+    console.log("Global NFT data updated successfully.");
+
+  } catch (err) {
+
+  }
+}
+
+// Get nft influencers from Lunar crush
+
+const getNFTInfluencers = async () => {
+  const lunarConfig = {
+    headers: {
+      "Authorization": 'Bearer ' + process.env.LUNARCRUSH_API_KEY,
+    },
+  };
+
+  // Set the time ranges
+  const intervals = ['1d', '1w', '1m', '3m', '6m', '1y', '2y', 'all'];
+  const fields = ['oneday', 'oneweek', 'onemonth', 'threemonths', 'sixmonths', 'oneyear', 'twoyears', 'all'];
+
+  try {
+    for (let i = 0; i < intervals.length; i++) {
+      try {
+        const response = await axios.get(`https://lunarcrush.com/api3/nfts/influencers?interval=${intervals[i]}`, lunarConfig);
+        const data = response.data.data;
+        
+        // Save the data
+        let update = {};
+        update[fields[i]] = data;
+        
+        await NFTInfluencers.findOneAndUpdate({}, update, { upsert: true });
+        
+      } catch (err) {
+        console.error(`Error for interval ${intervals[i]}`);
+      }
+    }
+    console.log(`Lunar crush --------- NFT Influencers data is updated.`);
+  } catch (err) {
+    console.error(`Lunar crush --------- updating NFT influencers error. ${err}`);
+  }
+}
+
 module.exports = {
   getNFTMarketPlaceData,
   getNFTTradersData,
   getNFTTrendingdata,
   getNFTData,
+  getDailyTopNFT,
+  getNFTInfluencers,
 };

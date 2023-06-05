@@ -7,6 +7,8 @@ const path = require("path");
 const coinRouter = require("./routes/coin");
 const exchangeRouter = require("./routes/exchanges");
 const defiRouter = require("./routes/defi");
+const newsRouter = require("./routes/news");
+const nftRouter = require("./routes/nft")
 
 // Start Express
 const app = express();
@@ -30,22 +32,24 @@ app.use(async function (req, res, next) {
   next();
 });
 
-// app.use(express.static(path.join(__dirname, "client")));
+app.use(express.static(path.join(__dirname, "client")));
 
 // Define a route for the root URL that sends an HTML file
 app.get("/", (req, res) => {
-  // res.sendFile(path.join(__dirname, "client", "index.html"));
-  res.json({ message: "Server is running!" });
+  res.sendFile(path.join(__dirname, "client", "index.html"));
+  // res.json({ message: "Server is running!" });
 });
 
 // Routes
 app.use("/api/coin", coinRouter);
 app.use("/api/exchange", exchangeRouter);
 app.use("/api/defi", defiRouter);
+app.use("/api/news", newsRouter);
+app.use("/api/nft", nftRouter);
 
 // Add wildcard route for all other URLs
-// app.get("*", (req, res) => {
-  // res.sendFile(path.join(__dirname, "client", "index.html"));
-// });
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "index.html"));
+});
 
 module.exports = app;

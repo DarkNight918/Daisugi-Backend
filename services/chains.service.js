@@ -82,7 +82,6 @@ const getChainData = async () => {
         // Save chainInfo to the database
         // Assuming your ChainData schema has a chainInfo field to store the data
         await ChainData.updateOne({ chainFullName: chainFullName }, { $set: updatedInfo });
-        console.log(`OkLink --------- ${chainFullName} info is updated.`)
       } catch (err) {
         console.log(`OkLink --------- Fetching Chain Info error: ${err}`);
       }
@@ -91,7 +90,7 @@ const getChainData = async () => {
     // Set active field to false for chains not present in the current API response
     // await ChainData.updateMany({ chainFullName: { $nin: updatedChainFullNames } }, { $set: { existing: false } });
     console.log(
-      `---------- Getting Oklink Chain Information is successfully finished! ----------`
+      `OkLink --------- Chain Information Successfully Updated.`
     );
   } catch (err) {
     console.log(`OkLink --------- Updating Chain Data error: ${err}`)
