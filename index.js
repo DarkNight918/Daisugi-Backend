@@ -3,37 +3,37 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
 const {
-  //   getIntheBlockCoinData,
+  getIntheBlockCoinData,
   getLiveCoinWatchData,
-  //   updateIntotheBlockCoins,
-  //   updateTokenInsightCoins,
+  updateIntotheBlockCoins,
+  updateTokenInsightCoins,
   getTopCoinsData,
   getCoinInfluencers,
 } = require("./services/coin.service");
 
 const {
-  //   getNFTMarketPlaceData,
-  //   getNFTTradersData,
-  //   getNFTTrendingdata,
-  //   getNFTData,
+  getNFTMarketPlaceData,
+  getNFTTradersData,
+  getNFTTrendingdata,
+  getNFTData,
   getNFTInfluencers,
 } = require("./services/nft.service");
 
 const {
-  //   getDEXData,
-  //   getCEXData,
-  //   getTvlProtocolData,
-  //   getTvlChainData,
-  //   getPoolsData,
-  //   getBridgeData
+  getDEXData,
+  getCEXData,
+  getTvlProtocolData,
+  getTvlChainData,
+  getPoolsData,
+  getBridgeData
 } = require("./services/exchange.service");
 
 const {
-  //   getChainData,
+  getChainData,
 } = require("./services/chains.service");
 
 const {
-  //   getRichAddressData,
+  getRichAddressData,
 } = require("./services/address.service");
 
 const publishAllInfo = require("./services/publish.service");
@@ -94,16 +94,16 @@ function getAllInfo() {
   // getNFTTradersData();
   // getNFTInfluencers();
   // getTopCoinsData();
-  // getCoinInfluencers()
+  // getCoinInfluencers();
   // getDEXData();
   // getCEXData();
   // getTvlProtocolData();
   // getTvlChainData();
   // getPoolsData();
-  // getBridgeData()
-  // getChainData()
-  // getRichAddressData()
-  // getNFTTrendingdata()
+  // getBridgeData();
+  // getChainData();
+  // getRichAddressData();
+  // getNFTTrendingdata();
   // getNFTData();
 }
 
