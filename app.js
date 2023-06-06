@@ -9,6 +9,7 @@ const exchangeRouter = require("./routes/exchanges");
 const defiRouter = require("./routes/defi");
 const newsRouter = require("./routes/news");
 const nftRouter = require("./routes/nft")
+const funcRouter = require("./routes/func")
 
 // Start Express
 const app = express();
@@ -46,6 +47,7 @@ app.use("/api/exchange", exchangeRouter);
 app.use("/api/defi", defiRouter);
 app.use("/api/news", newsRouter);
 app.use("/api/nft", nftRouter);
+app.use("/api/func", funcRouter);
 
 // Add wildcard route for all other URLs
 app.get("*", (req, res) => {
