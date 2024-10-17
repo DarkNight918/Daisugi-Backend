@@ -84,13 +84,13 @@ io.on("connection", (socket) => {
 function getAllInfo() {
   getLiveCoinWatchData();
   updateTokenInsightCoins();
-  getIntheBlockCoinData();
-  updateIntotheBlockCoins();
+  // getIntheBlockCoinData();
+  // updateIntotheBlockCoins();
   getNFTMarketPlaceData();
   getNFTTradersData();
-  getNFTInfluencers();
+  // getNFTInfluencers();
   getTopCoinsData();
-  getCoinInfluencers();
+  // getCoinInfluencers();
   getDEXData();
   getCEXData();
   getTvlProtocolData();
