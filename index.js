@@ -25,16 +25,12 @@ const {
   getTvlProtocolData,
   getTvlChainData,
   getPoolsData,
-  getBridgeData
+  getBridgeData,
 } = require("./services/exchange.service");
 
-const {
-  getChainData,
-} = require("./services/chains.service");
+const { getChainData } = require("./services/chains.service");
 
-const {
-  getRichAddressData,
-} = require("./services/address.service");
+const { getRichAddressData } = require("./services/address.service");
 
 const publishAllInfo = require("./services/publish.service");
 
@@ -65,46 +61,46 @@ const server = app.listen(port, () => {
 
 // const io = socket(server);
 
-// const io = require("socket.io")(server, {
-//   cors: {
-//     origin: "*",
-//   },
-// });
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+  },
+});
 
 // Initialize socket.io server
-// io.on("connection", (socket) => {
-//  console.log(`user just connected`, socket.id);
-// publishAllInfo(socket);
+io.on("connection", (socket) => {
+  console.log(`user just connected`, socket.id);
+  publishAllInfo(socket);
 
-//  socket.on("NextCoinInfo", data => {
-//    publishAllInfo(socket, data)
-//  })
+  socket.on("NextCoinInfo", (data) => {
+    publishAllInfo(socket, data);
+  });
 
-//  socket.on("disconnect", () => {
-//    console.log("🔥: A user disconnected.");
-//  });
-// });
+  socket.on("disconnect", () => {
+    console.log("🔥: A user disconnected.");
+  });
+});
 
 function getAllInfo() {
-  // getLiveCoinWatchData();
-  // updateTokenInsightCoins();
-  // getIntheBlockCoinData();
-  // updateIntotheBlockCoins();
-  // getNFTMarketPlaceData();
-  // getNFTTradersData();
-  // getNFTInfluencers();
-  // getTopCoinsData();
-  // getCoinInfluencers();
-  // getDEXData();
-  // getCEXData();
-  // getTvlProtocolData();
-  // getTvlChainData();
-  // getPoolsData();
-  // getBridgeData();
-  // getChainData();
-  // getRichAddressData();
-  // getNFTTrendingdata();
-  // getNFTData();
+  getLiveCoinWatchData();
+  updateTokenInsightCoins();
+  getIntheBlockCoinData();
+  updateIntotheBlockCoins();
+  getNFTMarketPlaceData();
+  getNFTTradersData();
+  getNFTInfluencers();
+  getTopCoinsData();
+  getCoinInfluencers();
+  getDEXData();
+  getCEXData();
+  getTvlProtocolData();
+  getTvlChainData();
+  getPoolsData();
+  getBridgeData();
+  getChainData();
+  getRichAddressData();
+  getNFTTrendingdata();
+  getNFTData();
 }
 
 process.on("unhandledRejection", (err) => {
